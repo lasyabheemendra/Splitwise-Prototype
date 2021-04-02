@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable no-multi-str */
 /* eslint-disable no-console */
 // import the require dependencies
@@ -44,7 +43,7 @@ const dbConfig = {
 };
 const pool = mysqll.createPool(dbConfig);
 // use cors to allow cross origin resource sharing
-app.use(cors({ origin: 'http://54.215.128.119:3000', credentials: true }));
+app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
 // use express session to maintain session data
 app.use(session({
@@ -64,7 +63,7 @@ let sessionCurrency = '';
 
 // Allow Access Control
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'http://54.215.128.119:3000');
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT,DELETE');
   res.setHeader('Access-Control-Allow-Headers', 'Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers');
@@ -128,6 +127,12 @@ app.post('/login', (req, res) => {
       return data;
     })
     .then((results) => {
+      if (results.length === 0) {
+        res.writeHead(406, {
+          'Content-Type': 'text/plain',
+        });
+        return res.end('Invalid credentials');
+      }
       res.cookie('cookie', results[0], { maxAge: 900000, httpOnly: false, path: '/' });
 
       sessionUserName = results[0].userName;
@@ -139,7 +144,7 @@ app.post('/login', (req, res) => {
       // connection.release();
       return res.end('Successful Login');
     })
-    .catch((err) => {
+    .catch(() => {
       res.send('error');
       // connection.release();
     });
@@ -169,11 +174,8 @@ app.get('/userprofile', (req, res) => {
       return data;
     })
     .then((results) => {
-      res.writeHead(200, {
-        'Content-Type': 'text/plain',
-      });
-      res.end(JSON.stringify(results[0]));
-      connection.release();
+      console.log(JSON.stringify(results[0]));
+      return res.end(JSON.stringify(results[0]));
     })
     .catch(() => {
       res.writeHead(406, {
@@ -252,26 +254,19 @@ app.get('/allUsers', (req, res) => {
     })
     .then((results) => {
       console.log('Sending all users');
-      res.writeHead(200, {
-        'Content-Type': 'text/plain',
-      });
-      res.end(JSON.stringify(results));
-      connection.release();
+      return res.end(JSON.stringify(results));
     })
     .catch(() => {
-      console.log('No data found');
-      res.writeHead(406, {
+      console.log('No user data found');
+      connection.release();
+      return res.writeHead(406, {
         'Content-Type': 'application/json',
       });
-      connection.release();
     });
 });
 
 // Route to handle new group request call
 app.get('/newgroup', (req, res) => {
-  res.writeHead(200, {
-    'Content-Type': 'application/json',
-  });
   res.end(`${sessionUserName}${'  ('}${sessionUserEmail})`);
 });
 
@@ -333,8 +328,8 @@ app.post('/newgroup', (req, res) => {
         throw new Error('activities are not added.');
       }
       connection.commit();
-      res.send('ok');
       connection.release();
+      return res.send('ok');
     })
     .catch((err) => {
       res.send('duplicate');
@@ -364,12 +359,11 @@ app.get('/mygroups', (req, res) => {
       });
       connection.release();
       return res.end(JSON.stringify(rows));
-    }).catch((err) => {
-      console.log('No data found');
+    }).catch(() => {
+      console.log('No group data found');
       res.writeHead(406, {
         'Content-Type': 'application/json',
       });
-      console.log(err);
       connection.release();
     });
 });
@@ -679,6 +673,14 @@ app.post('/settleup', (req, res) => {
           y += x;
           x = 0;
         }
+      } else if (x < 0) {
+        if (Math.abs(x) < y) {
+          y += x;
+          x = 0;
+        } else if (Math.abs(x) >= y) {
+          x += y;
+          y = 0;
+        }
       }
       data = connection.query(creditSQL,
         [x, sessionUserEmail, req.body.otherUser.group_name]);
@@ -751,8 +753,8 @@ app.post('/getacceptedmembers', (req, res) => {
 });
 // get recent activities
 app.get('/recentactivities', (req, res) => {
-  const sql = 'select  date_format(action_on,"%d-%b-%Y") as actionon,action_by , \
-  action_name from recentActivities \
+  const sql = 'select  action_id, date_format(action_on,"%d-%b-%Y") as actionon,action_by , \
+  action_name,group_name from recentActivities \
   where group_name IN (select group_name from groupMembersDetails \
   where memberEmail=?) \
   order by action_on desc;';
@@ -768,13 +770,12 @@ app.get('/recentactivities', (req, res) => {
     })
     .then((results) => {
       if (results.length === 0) {
-        throw new Error('No recent activities found');
+        return res.send('No recent activities found');
       }
-      res.send(JSON.stringify(results));
       connection.release();
+      return res.send(JSON.stringify(results));
     })
-    .catch((err) => {
-      console.log(err);
+    .catch(() => {
       res.send('No recent activities found');
       connection.release();
     });

@@ -28,9 +28,9 @@ class UserProfile extends PureComponent {
   }
 
   componentDidMount() {
-    axios.get('http://54.215.128.119:3001/userprofile')
+    axios.get('http://localhost:3001/userprofile')
       .then((response) => {
-        console.log('Data recieved', response.data.images);
+        console.log('recievd', response.data);
         // update the state with the response data
         this.setState({
           username: response.data.userName,
@@ -105,7 +105,7 @@ class UserProfile extends PureComponent {
     console.log(data);
 
     // make a post request with the user data
-    axios.post('http://54.215.128.119:3001/userprofile', data)
+    axios.post('http://localhost:3001/userprofile', data)
       .then((response) => {
         console.log('Status Code : ', response.status);
         if (response.status === 200) {

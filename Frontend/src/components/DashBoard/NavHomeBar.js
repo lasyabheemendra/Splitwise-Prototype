@@ -16,7 +16,7 @@ class NavHomeBar extends PureComponent {
   }
 
   componentDidMount() {
-    axios.get('http://54.215.128.119:3001/navbar')
+    axios.get('http://localhost:3001/navbar')
       .then((response) => {
         // update the state with the response data
         this.setState({

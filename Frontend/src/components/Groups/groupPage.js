@@ -44,7 +44,7 @@ class groupPage extends PureComponent {
   }
 
   componentDidMount() {
-    axios.get('http://54.215.128.119:3001/navbar')
+    axios.get('http://localhost:3001/navbar')
       .then((response) => {
       // update the state with the response data
         this.setState({
@@ -54,7 +54,7 @@ class groupPage extends PureComponent {
         });
       });
     const data = { groupName: this.props.match.params.Name };
-    axios.post('http://54.215.128.119:3001/getacceptedmembers', data)
+    axios.post('http://localhost:3001/getacceptedmembers', data)
       .then((response) => {
         if (response.data[0].numberOfMemebers > 1) {
           this.setState({ acceptedMembers: true });
@@ -70,7 +70,7 @@ class groupPage extends PureComponent {
     this.setState({
       allExpenses: [],
     });
-    axios.post('http://54.215.128.119:3001/expense', data)
+    axios.post('http://localhost:3001/expense', data)
       .then((response) => {
         for (let i = 0; i < response.data.length; i += 1) {
           this.setState({
@@ -88,7 +88,7 @@ class groupPage extends PureComponent {
     this.setState({
       groupBalance: [],
     });
-    axios.post('http://54.215.128.119:3001/groupbalance', data)
+    axios.post('http://localhost:3001/groupbalance', data)
       .then((response) => {
         console.log('response of getexpenses', response);
         for (let i = 0; i < response.data.length; i += 1) {
@@ -114,7 +114,7 @@ class groupPage extends PureComponent {
 
    leaveGroup = () => {
      const data = { groupName: this.props.match.params.Name };
-     axios.post('http://54.215.128.119:3001/leavegroup', data)
+     axios.post('http://localhost:3001/leavegroup', data)
        .then((response) => {
          if (response.data !== 'Cant leave Group Now!') {
            // eslint-disable-next-line quotes

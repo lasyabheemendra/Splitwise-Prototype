@@ -32,7 +32,7 @@ class mygroups extends PureComponent {
   }
 
   getInvitedgroups = () => {
-    axios.get('http://54.215.128.119:3001/mygroups').then((response) => {
+    axios.get('http://localhost:3001/mygroups').then((response) => {
       for (let i = 0; i < response.data.length; i += 1) {
         this.setState({
           invitedGroups: [
@@ -62,7 +62,7 @@ class mygroups extends PureComponent {
        loading: true,
        allGroups: [],
      });
-     axios.get('http://54.215.128.119:3001/myallgroups').then((response) => {
+     axios.get('http://localhost:3001/myallgroups').then((response) => {
        for (let i = 0; i < response.data.length; i += 1) {
          this.setState({
            loading: false,
@@ -82,7 +82,7 @@ class mygroups extends PureComponent {
     onAccept = () => {
     // By calling the belowe method will get the selected values programatically
       const data = this.multiselectRef.current.getSelectedItems();
-      axios.post('http://54.215.128.119:3001/mygroups', data).then((response) => {
+      axios.post('http://localhost:3001/mygroups', data).then((response) => {
         if (response.status === 200) {
           this.multiselectRef.current.resetSelectedValues();
           this.setState({

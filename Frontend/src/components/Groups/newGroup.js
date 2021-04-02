@@ -39,7 +39,7 @@ class group extends PureComponent {
   }
 
   componentDidMount() {
-    axios.get('http://54.215.128.119:3001/newgroup')
+    axios.get('http://localhost:3001/newgroup')
       .then((response) => {
         console.log(response);
         // update the state with the response data
@@ -48,7 +48,7 @@ class group extends PureComponent {
         });
       });
 
-    axios.get('http://54.215.128.119:3001/allUsers')
+    axios.get('http://localhost:3001/allUsers')
       .then((response) => {
         console.log(response);
         for (let i = 0; i < response.data.length; i += 1) {
@@ -231,7 +231,7 @@ class group extends PureComponent {
       // set the with credentials to true
       axios.defaults.withCredentials = true;
       // make a post request with the user data
-      axios.post('http://54.215.128.119:3001/newGroup', data)
+      axios.post('http://localhost:3001/newGroup', data)
         .then((response) => {
           if (response.data === 'ok') {
             this.setState({

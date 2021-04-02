@@ -36,7 +36,7 @@ class DashBoard extends PureComponent {
   }
 
   componentDidMount() {
-    axios.get('http://54.215.128.119:3001/navbar')
+    axios.get('http://localhost:3001/navbar')
       .then((response) => {
         // update the state with the response data
         this.setState({
@@ -58,7 +58,7 @@ class DashBoard extends PureComponent {
     let tempprintgetsback = [];
     let tempgetsback = 0;
     let tempowes = 0;
-    axios.get('http://54.215.128.119:3001/dashboard')
+    axios.get('http://localhost:3001/dashboard')
       .then((response) => {
         if (response.data === 'No active groups found for this user') {
           this.setState({ message: 'You have no active groups!' });
@@ -69,7 +69,7 @@ class DashBoard extends PureComponent {
 
           tempowedUsers = response.data.filter((item) => item.status === 'owes' && item.userName !== this.state.username);
           tempgetsbackUsers = response.data.filter((item) => item.status === 'gets back' && item.userName !== this.state.username);
-          console.log('owed', tempowedUsers);
+
           if (tempuserGetsback.length > 0) {
             // total amout user should get back
             tempgetsback = _(tempuserGetsback)
@@ -94,7 +94,6 @@ class DashBoard extends PureComponent {
 
           if (tempuserGetsback.length > 0 && tempgetsbackUsers < 1) {
             this.setState({ youAreOwed: true });
-            console.log('flass is true for if ', this.state.youAreOwed);
             // members oweing to user
             tempprintOwes = _(tempowedUsers)
               .groupBy('userName')
@@ -106,7 +105,6 @@ class DashBoard extends PureComponent {
           } else if (tempuserGetsback.length > 0
              && tempgetsbackUsers.length > 0) {
             this.setState({ youAreOwed: true });
-            console.log('flass is true for else if ', this.state.youAreOwed);
             for (let i = 0; i < tempuserGetsback.length; i += 1) {
               const name = tempuserGetsback[i].group_name;
               // eslint-disable-next-line no-unused-vars
@@ -141,7 +139,6 @@ class DashBoard extends PureComponent {
           }
           if (tempuserOwes.length > 0) {
             this.setState({ youOweto: true });
-            console.log('flass is true for second if ', this.state.youOweto);
             for (let i = 0; i < tempuserOwes.length; i += 1) {
               const name = tempuserOwes[i].group_name;
               const temp = tempgetsbackUsers.filter((item) => item.group_name === name);
@@ -180,7 +177,7 @@ class DashBoard extends PureComponent {
   showModal = () => {
     const users = [];
     this.setState({ isOpen: true });
-    axios.get('http://54.215.128.119:3001/getrelatedusers')
+    axios.get('http://localhost:3001/getrelatedusers')
       .then((response) => {
         for (let i = 0; i < response.data.length; i += 1) {
           users.push(response.data[i].userName);
@@ -208,7 +205,7 @@ class DashBoard extends PureComponent {
     // set the with credentials to true
     axios.defaults.withCredentials = true;
     // make a post request with the user data
-    axios.post('http://54.215.128.119:3001/settleup ', data)
+    axios.post('http://localhost:3001/settleup ', data)
       .then((response) => {
         console.log('settle up response', response.data);
         this.hideModal();

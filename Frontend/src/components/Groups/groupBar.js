@@ -20,7 +20,7 @@ function GroupBar({ getExpenses, leaveGroup, showButton }) {
   useEffect(() => {
     console.log(params);
     const data = { groupName: params.Name };
-    axios.post('http://54.215.128.119:3001/getacceptedmembers', data)
+    axios.post('http://localhost:3001/getacceptedmembers', data)
       .then((response) => {
         console.log(response);
         if (response.data[0].numberOfMemebers > 1) {
@@ -54,7 +54,7 @@ function GroupBar({ getExpenses, leaveGroup, showButton }) {
     }
     if (description && amount) {
       const data = { GroupName: params.Name, Description: description, Amount: amount };
-      axios.post('http://54.215.128.119:3001/grouppage', data)
+      axios.post('http://localhost:3001/grouppage', data)
         .then((response) => {
           if (response.data === 'Successfully added expense and updated member Balance') {
             hideModal();

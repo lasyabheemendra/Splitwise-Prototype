@@ -12,7 +12,7 @@ const signup = (data) => (dispatch) => {
     // set the with credentials to true
     axios.defaults.withCredentials = true;
     // make a post request with the user data
-    axios.post('http://54.215.128.119:3001/signup', data)
+    axios.post('http://localhost:3001/signup', data)
       .then((response) => {
         console.log('Status Code : ', response.status);
         if (response.status === 200) {
