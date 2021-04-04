@@ -1,10 +1,13 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-console */
 import React, { Component } from 'react';
 import '../../App.css';
 import PropTypes from 'prop-types';
 import { Redirect } from 'react-router';
 import { connect } from 'react-redux';
+import jwt_decode from 'jwt-decode';
 import login from '../../actions/action';
+import NavigationBar from '../LandingPage/NavigationBar';
 
 // Define a Login Component
 class Login extends Component {
@@ -36,12 +39,19 @@ class Login extends Component {
   render() {
     // redirect based on successful login
     let redirectVar = null;
-    if (this.props.loggedIn) {
+    if (this.props.token) {
+      localStorage.setItem('token', this.props.token);
+      const decoded = jwt_decode(this.props.token.split(' ')[1]);
+      localStorage.setItem('username', decoded.username);
+      localStorage.setItem('useremail', decoded.useremail);
+      localStorage.setItem('currency', decoded.currency);
+
       redirectVar = <Redirect to="/dashboard" />;
     }
     return (
       <div>
         {redirectVar}
+        <NavigationBar showSignup />
         <div className="container">
           <div>
             <div className="login-form">
@@ -90,16 +100,17 @@ class Login extends Component {
 
 Login.propTypes = {
   login: PropTypes.func.isRequired,
-  loggedIn: PropTypes.bool.isRequired,
+  token: PropTypes.string.isRequired,
   error: PropTypes.string.isRequired,
 
 };
 
 function mapStateToProps(state) {
-  const { loggedIn, error } = state.validation;
+  const { loggedIn, error, token } = state.validation;
   return {
     loggedIn,
     error,
+    token,
   };
 }
 

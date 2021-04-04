@@ -1,9 +1,13 @@
+/* eslint-disable camelcase */
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-console */
 import React, { Component } from 'react';
 import { Redirect } from 'react-router';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import jwt_decode from 'jwt-decode';
 import signup from '../../actions/signupAction';
+import NavigationBar from '../LandingPage/NavigationBar';
 import '../../App.css';
 
 // Define a Login Component
@@ -44,13 +48,20 @@ class SignUp extends Component {
     render() {
       // redirect based on successful login
       let redirectVar = null;
-      if (this.props.loggedIn) {
+      if (this.props.token.length > 0) {
+        localStorage.setItem('token', this.props.token);
+        const decoded = jwt_decode(this.props.token.split(' ')[1]);
+        localStorage.setItem('username', decoded.username);
+        localStorage.setItem('useremail', decoded.useremail);
+        localStorage.setItem('currency', decoded.currency);
+
         redirectVar = <Redirect to="/dashboard" />;
       }
       return (
 
         <div className="container">
           {redirectVar}
+          <NavigationBar showLogin />
           <div>
             <div className="login-form">
               <div className="main-div">
@@ -106,16 +117,17 @@ class SignUp extends Component {
 
 SignUp.propTypes = {
   signup: PropTypes.func.isRequired,
-  loggedIn: PropTypes.bool.isRequired,
+  token: PropTypes.string.isRequired,
   error: PropTypes.string.isRequired,
 
 };
 
 function mapStateToProps(state) {
-  const { loggedIn, error } = state.validation;
+  const { loggedIn, error, token } = state.validation;
   return {
     loggedIn,
     error,
+    token,
   };
 }
 // export Login Component

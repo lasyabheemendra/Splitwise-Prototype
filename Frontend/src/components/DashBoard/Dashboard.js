@@ -1,13 +1,15 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 import React, { PureComponent } from 'react';
 import {
   Container, Row, Col, Button, Navbar, Modal, Form,
 } from 'react-bootstrap';
-import cookie from 'react-cookies';
 import _ from 'lodash';
 import { Redirect } from 'react-router';
 import axios from 'axios';
 import numeral from 'numeral';
+
+import PropTypes from 'prop-types';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import NavHomeBar from './NavHomeBar';
 import SideBar from '../SideBar/SideBar';
@@ -30,194 +32,13 @@ class DashBoard extends PureComponent {
       message: '',
       isOpen: false,
       userDetails: '',
-      selectedUser: '',
-      memberData: [],
     };
-  }
-
-  componentDidMount() {
-    axios.get('http://localhost:3001/navbar')
-      .then((response) => {
-        // update the state with the response data
-        this.setState({
-          username: response.data[0],
-          userCurrency: response.data[1],
-
-        });
-      });
-    this.getUserBalance();
-  }
-
-  getUserBalance = () => {
-    let tempfulldata = [];
-    let tempuserOwes = [];
-    let tempuserGetsback = [];
-    let tempowedUsers = [];
-    let tempgetsbackUsers = [];
-    let tempprintOwes = [];
-    let tempprintgetsback = [];
-    let tempgetsback = 0;
-    let tempowes = 0;
-    axios.get('http://localhost:3001/dashboard')
-      .then((response) => {
-        if (response.data === 'No active groups found for this user') {
-          this.setState({ message: 'You have no active groups!' });
-        } else {
-          tempfulldata = response.data;
-          tempuserOwes = response.data.filter((item) => item.status === 'owes' && item.userName === this.state.username);
-          tempuserGetsback = response.data.filter((item) => item.status === 'gets back' && item.userName === this.state.username);
-
-          tempowedUsers = response.data.filter((item) => item.status === 'owes' && item.userName !== this.state.username);
-          tempgetsbackUsers = response.data.filter((item) => item.status === 'gets back' && item.userName !== this.state.username);
-
-          if (tempuserGetsback.length > 0) {
-            // total amout user should get back
-            tempgetsback = _(tempuserGetsback)
-              .groupBy('userName')
-              .map((objs, key) => ({
-                userName: key,
-                balance: numeral((_.sumBy(objs, 'balance'))).format('00.00'),
-              }))
-              .value()[0].balance;
-          }
-
-          // total amout user owes to other members
-          if (tempuserOwes.length > 0) {
-            tempowes = _(tempuserOwes)
-              .groupBy('userName')
-              .map((objs, key) => ({
-                userName: key,
-                balance: numeral(Math.abs(_.sumBy(objs, 'balance'))).format('00.00'),
-              }))
-              .value()[0].balance;
-          }
-
-          if (tempuserGetsback.length > 0 && tempgetsbackUsers < 1) {
-            this.setState({ youAreOwed: true });
-            // members oweing to user
-            tempprintOwes = _(tempowedUsers)
-              .groupBy('userName')
-              .map((objs, key) => ({
-                userName: key,
-                balance: `Owes you ${this.state.userCurrency}${numeral(Math.abs(_.sumBy(objs, 'balance'))).format('00.00')}`,
-              }))
-              .value();
-          } else if (tempuserGetsback.length > 0
-             && tempgetsbackUsers.length > 0) {
-            this.setState({ youAreOwed: true });
-            for (let i = 0; i < tempuserGetsback.length; i += 1) {
-              const name = tempuserGetsback[i].group_name;
-              // eslint-disable-next-line no-unused-vars
-              const gettersInGroup = tempgetsbackUsers.filter((item) => item.group_name === name);
-              const giversInGroup = tempowedUsers.filter((item) => item.group_name === name);
-
-              if (giversInGroup.length > 1) {
-                for (let j = 0; j < giversInGroup.length; j += 1) {
-                  tempprintOwes.push({
-                    userName: giversInGroup[j].userName,
-                    balance: tempuserGetsback[i].balance / giversInGroup.length,
-                    group: giversInGroup[j].group_name,
-                  });
-                }
-              } else if (giversInGroup.length === 1) {
-                tempprintOwes.push({
-                  userName: giversInGroup[0].userName,
-                  balance: tempuserGetsback[i].balance,
-                  group: giversInGroup[0].group_name,
-                });
-              }
-            }
-
-            // members oweing to user
-            tempprintOwes = _(tempprintOwes)
-              .groupBy('userName')
-              .map((objs, key) => ({
-                userName: key,
-                balance: `Owes you ${this.state.userCurrency}${numeral(Math.abs(_.sumBy(objs, 'balance'))).format('00.00')}`,
-              }))
-              .value();
-          }
-          if (tempuserOwes.length > 0) {
-            this.setState({ youOweto: true });
-            for (let i = 0; i < tempuserOwes.length; i += 1) {
-              const name = tempuserOwes[i].group_name;
-              const temp = tempgetsbackUsers.filter((item) => item.group_name === name);
-
-              for (let j = 0; j < temp.length; j += 1) {
-                tempprintgetsback.push({
-                  userName: tempuserOwes[i].userName,
-                  balance: tempuserOwes[i].balance / temp.length,
-                  membername: temp[j].userName,
-                  group: temp[j].group_name,
-                });
-              }
-            }
-
-            tempprintgetsback = _(tempprintgetsback)
-              .groupBy('membername')
-              .map((objs, key) => ({
-                userName: key,
-                balance: `${key} ${this.state.userCurrency}${numeral(Math.abs(_.sumBy(objs, 'balance'))).format('00.00')}`,
-              }))
-              .value();
-          }
-          this.setState({
-            memberData: tempfulldata,
-            printOwes: tempprintOwes,
-            printGetsback: tempprintgetsback,
-            you_are_owed: tempgetsback,
-            you_owe: tempowes,
-            totalBalance: tempgetsback - tempowes,
-          });
-        }
-      }).catch(
-      );
-  }
-
-  showModal = () => {
-    const users = [];
-    this.setState({ isOpen: true });
-    axios.get('http://localhost:3001/getrelatedusers')
-      .then((response) => {
-        for (let i = 0; i < response.data.length; i += 1) {
-          users.push(response.data[i].userName);
-        }
-      });
-    this.setState({ isOpen: true, userDetails: users });
-    console.log('realted users', users);
-  }
-
-  hideModal = () => {
-    this.setState({ isOpen: false });
-  };
-
-  userNameChange = (e) => {
-    this.setState({ selectedUser: e });
-  }
-
-  settleUp = () => {
-    const tempuserOwes = this.state.memberData
-      .filter((item) => item.userName === this.state.selectedUser[0]);
-    const data = {
-      usernames: [this.state.username],
-      otherUser: tempuserOwes[0],
-    };
-    // set the with credentials to true
-    axios.defaults.withCredentials = true;
-    // make a post request with the user data
-    axios.post('http://localhost:3001/settleup ', data)
-      .then((response) => {
-        console.log('settle up response', response.data);
-        this.hideModal();
-        this.getUserBalance();
-      }).catch(() => {
-        console.log('response is not recieved');
-      });
   }
 
   render() {
+    // if not logged in go to login page
     let redirectVar = null;
-    if (!cookie.load('cookie')) {
+    if (!localStorage.getItem('token')) {
       redirectVar = <Redirect to="/" />;
     }
     return (
@@ -357,4 +178,5 @@ class DashBoard extends PureComponent {
     );
   }
 }
+
 export default DashBoard;

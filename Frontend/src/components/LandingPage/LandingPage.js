@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 import NavigationBar from './NavigationBar';
 
@@ -9,13 +8,13 @@ import '../../App.css';
 class LandingPage extends PureComponent {
   render() {
     let redirectVar = null;
-    if (cookie.load('cookie')) {
+    if (localStorage.getItem('token')) {
       redirectVar = <Redirect to="/dashboard" />;
     }
     return (
       <div>
         {redirectVar}
-        <NavigationBar />
+        <NavigationBar showLogin showSignup />
         <div className="App-header">
           <h1 className="font-weight-bolder" size="100">
             Less stress when sharing expenses with anyone.

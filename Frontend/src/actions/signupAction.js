@@ -12,11 +12,11 @@ const signup = (data) => (dispatch) => {
     // set the with credentials to true
     axios.defaults.withCredentials = true;
     // make a post request with the user data
-    axios.post('http://localhost:3001/signup', data)
+    axios.post('http://localhost:3001/user/signup', data)
       .then((response) => {
         console.log('Status Code : ', response.status);
         if (response.status === 200) {
-          dispatch({ type: SW_SIGNUP_SUCCESS });
+          dispatch({ type: SW_SIGNUP_SUCCESS, token: response.data });
         }
       }).catch(() => {
         dispatch({ type: SW_SIGNUP_ERROR, error: 'This email Id is already registered. Please enter different email address' });

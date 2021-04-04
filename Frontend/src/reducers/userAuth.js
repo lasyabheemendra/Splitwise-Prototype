@@ -7,6 +7,7 @@ const initialState = {
   loggedIn: null,
   error: '',
   loggedOut: null,
+  token: '',
 };
 const validation = (state = initialState, action) => {
   switch (action.type) {
@@ -14,11 +15,13 @@ const validation = (state = initialState, action) => {
       return {
         loggedIn: true,
         error: '',
+        token: action.token,
       };
     case SW_LOGIN_ERROR:
       return {
         loggedIn: false,
         error: action.error,
+        token: '',
       };
     case LOGOUT:
       return {
@@ -28,11 +31,13 @@ const validation = (state = initialState, action) => {
       return {
         loggedIn: true,
         error: '',
+        token: action.token,
       };
     case SW_SIGNUP_ERROR:
       return {
         loggedIn: false,
         error: action.error,
+        token: '',
       };
     default:
       return state;

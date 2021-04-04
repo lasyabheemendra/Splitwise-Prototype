@@ -6,11 +6,12 @@ const login = (data) => (dispatch) => {
   // set the with credentials to true
   axios.defaults.withCredentials = true;
   // make a post request with the user data
-  axios.post('http://localhost:3001/login', data)
+  axios.post('http://localhost:3001/user/login', data)
     .then((response) => {
       console.log('Status Code : ', response);
+      console.log('token Code : ', response.data);
       if (response.status === 200) {
-        dispatch({ type: SW_LOGIN_SUCCESS });
+        dispatch({ type: SW_LOGIN_SUCCESS, token: response.data });
       }
     }).catch(() => {
       dispatch({ type: SW_LOGIN_ERROR, error: 'Incorrect user email or password.' });

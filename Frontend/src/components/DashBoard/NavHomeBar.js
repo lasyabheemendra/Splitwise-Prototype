@@ -1,7 +1,5 @@
 import React, { PureComponent } from 'react';
-import cookie from 'react-cookies';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 
@@ -16,23 +14,19 @@ class NavHomeBar extends PureComponent {
   }
 
   componentDidMount() {
-    axios.get('http://localhost:3001/navbar')
-      .then((response) => {
-        // update the state with the response data
-        this.setState({
-          username: response.data[0],
-        });
-      });
+    this.setState({
+      username: localStorage.getItem('username'),
+    });
   }
 
     // handle logout to destroy the cookie
     handleLogout = () => {
-      cookie.remove('cookie', { path: '/' });
+      localStorage.clear();
     }
 
     render() {
       let navLogin = null;
-      if (cookie.load('cookie')) {
+      if (localStorage.getItem('token')) {
         navLogin = (
 
           <Link to="/" onClick={this.handleLogout}>
