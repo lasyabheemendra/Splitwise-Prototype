@@ -6,7 +6,6 @@ import {
 const initialState = {
   loggedIn: null,
   error: '',
-  loggedOut: null,
   token: '',
 };
 const validation = (state = initialState, action) => {
@@ -25,7 +24,7 @@ const validation = (state = initialState, action) => {
       };
     case LOGOUT:
       return {
-        loggedOut: true,
+        loggedIn: false,
       };
     case SW_SIGNUP_SUCCESS:
       return {

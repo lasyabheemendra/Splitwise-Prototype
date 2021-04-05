@@ -5,7 +5,6 @@ import React, { Component } from 'react';
 import { Redirect } from 'react-router';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import jwt_decode from 'jwt-decode';
 import signup from '../../actions/signupAction';
 import NavigationBar from '../LandingPage/NavigationBar';
 import '../../App.css';
@@ -48,13 +47,7 @@ class SignUp extends Component {
     render() {
       // redirect based on successful login
       let redirectVar = null;
-      if (this.props.token.length > 0) {
-        localStorage.setItem('token', this.props.token);
-        const decoded = jwt_decode(this.props.token.split(' ')[1]);
-        localStorage.setItem('username', decoded.username);
-        localStorage.setItem('useremail', decoded.useremail);
-        localStorage.setItem('currency', decoded.currency);
-
+      if (this.props.loggedIn) {
         redirectVar = <Redirect to="/dashboard" />;
       }
       return (
@@ -117,8 +110,8 @@ class SignUp extends Component {
 
 SignUp.propTypes = {
   signup: PropTypes.func.isRequired,
-  token: PropTypes.string.isRequired,
   error: PropTypes.string.isRequired,
+  loggedIn: PropTypes.bool.isRequired,
 
 };
 

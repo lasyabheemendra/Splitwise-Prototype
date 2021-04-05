@@ -10,6 +10,7 @@ import axios from 'axios';
 import numeral from 'numeral';
 
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import NavHomeBar from './NavHomeBar';
 import SideBar from '../SideBar/SideBar';
@@ -20,8 +21,6 @@ class DashBoard extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      username: '',
-      userCurrency: '',
       printOwes: [],
       printGetsback: [],
       totalBalance: 0,
@@ -36,9 +35,9 @@ class DashBoard extends PureComponent {
   }
 
   render() {
-    // if not logged in go to login page
+    // redirect based on successful login
     let redirectVar = null;
-    if (!localStorage.getItem('token')) {
+    if (!this.props.loggedIn) {
       redirectVar = <Redirect to="/" />;
     }
     return (
@@ -69,7 +68,7 @@ class DashBoard extends PureComponent {
                 <Modal.Header>
                   <div>
                     <Modal.Title className="alert alert-info">
-                      {this.state.username}
+                      {this.props.details.username}
                       {' '}
                       with whom do you want to settle up?
                     </Modal.Title>
@@ -104,21 +103,21 @@ class DashBoard extends PureComponent {
                   <Navbar.Collapse className="justify-content-start">
                     <p className="font-weight-bold">total balance:  </p>
                     <p>
-                      {this.state.userCurrency}
+                      {this.props.details.currency}
                       {this.state.totalBalance}
                     </p>
                   </Navbar.Collapse>
                   <Navbar.Collapse className="justify-content-center">
                     <p className="font-weight-bold">you owe:  </p>
                     <p>
-                      {this.state.userCurrency}
+                      {this.props.details.currency}
                       {this.state.you_owe}
                     </p>
                   </Navbar.Collapse>
                   <Navbar.Collapse className="justify-content-end">
                     <p className="font-weight-bold">you are owed:  </p>
                     <p>
-                      {this.state.userCurrency}
+                      {this.props.details.currency}
                       {this.state.you_are_owed}
                     </p>
                   </Navbar.Collapse>
@@ -178,5 +177,15 @@ class DashBoard extends PureComponent {
     );
   }
 }
+DashBoard.propTypes = {
+  loggedIn: PropTypes.bool.isRequired,
+  details: PropTypes.string.isRequired,
 
-export default DashBoard;
+};
+
+const mapStateToProps = (state) => ({
+  loggedIn: state.validation.loggedIn,
+  details: state.information,
+});
+
+export default connect(mapStateToProps, null)(DashBoard);

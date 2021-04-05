@@ -1,12 +1,10 @@
 /* eslint-disable camelcase */
-/* eslint-disable no-console */
 import React, { Component } from 'react';
 import '../../App.css';
 import PropTypes from 'prop-types';
 import { Redirect } from 'react-router';
 import { connect } from 'react-redux';
-import jwt_decode from 'jwt-decode';
-import login from '../../actions/action';
+import { login } from '../../actions/action';
 import NavigationBar from '../LandingPage/NavigationBar';
 
 // Define a Login Component
@@ -39,13 +37,7 @@ class Login extends Component {
   render() {
     // redirect based on successful login
     let redirectVar = null;
-    if (this.props.token) {
-      localStorage.setItem('token', this.props.token);
-      const decoded = jwt_decode(this.props.token.split(' ')[1]);
-      localStorage.setItem('username', decoded.username);
-      localStorage.setItem('useremail', decoded.useremail);
-      localStorage.setItem('currency', decoded.currency);
-
+    if (this.props.loggedIn) {
       redirectVar = <Redirect to="/dashboard" />;
     }
     return (
@@ -100,7 +92,7 @@ class Login extends Component {
 
 Login.propTypes = {
   login: PropTypes.func.isRequired,
-  token: PropTypes.string.isRequired,
+  loggedIn: PropTypes.bool.isRequired,
   error: PropTypes.string.isRequired,
 
 };
