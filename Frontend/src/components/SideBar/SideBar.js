@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import { Link } from 'react-router-dom';
 
 class SideBar extends PureComponent {
   render() {
@@ -8,11 +9,11 @@ class SideBar extends PureComponent {
         <div className="bg-light border-right" id="sidebar-wrapper">
 
           <div className="list-group list-group-flush">
-            <a href="/dashboard" className="list-group-item list-group-item-action bg-light">Dashboard</a>
-            <a href="/recentactivity" className="list-group-item list-group-item-action bg-light">Recent Activity</a>
-            <a href="/mygroups" className="list-group-item list-group-item-action bg-light">My Groups</a>
-            <a href="/newgroup" className="list-group-item list-group-item-action bg-light">Add new group</a>
-            <a href="/userprofile" className="list-group-item list-group-item-action bg-light">Profile</a>
+            <Link to="/dashboard" className="list-group-item list-group-item-action bg-light"> Dashboard</Link>
+            <Link to="/recentactivity" className="list-group-item list-group-item-action bg-light"> Recent Activity</Link>
+            <Link to="/mygroups" className="list-group-item list-group-item-action bg-light"> My Groups</Link>
+            <Link to="/newgroup" className="list-group-item list-group-item-action bg-light"> Add new group</Link>
+            <Link to="/userprofile" className="list-group-item list-group-item-action bg-light"> Profile</Link>
 
           </div>
         </div>

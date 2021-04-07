@@ -1,3 +1,4 @@
+/* eslint-disable react/forbid-prop-types */
 /* eslint-disable react/no-unused-state */
 /* eslint-disable no-console */
 import React, { PureComponent } from 'react';
@@ -5,8 +6,10 @@ import { Redirect } from 'react-router';
 import {
   Container, Row, Col, Form,
 } from 'react-bootstrap';
-import axios from 'axios';
-import cookie from 'react-cookies';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+
+import { userProfileUpdate } from '../../actions/profileAction';
 import NavHomeBar from '../DashBoard/NavHomeBar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../../App.css';
@@ -27,20 +30,17 @@ class UserProfile extends PureComponent {
     };
   }
 
-  componentDidMount() {
-    axios.get('http://localhost:3001/userprofile')
-      .then((response) => {
-        console.log('recievd', response.data);
-        // update the state with the response data
-        this.setState({
-          username: response.data.userName,
-          useremail: response.data.userEmail,
-          phonenumber: response.data.phoneNumber,
-          currency: response.data.currency,
-          timezone: response.data.timeZone,
-          language: response.data.language,
-        });
-      });
+  componentDidMount = () => {
+    this.setState({
+      userID: this.props.details.userID,
+      username: this.props.details.username,
+      useremail: this.props.details.useremail,
+      phonenumber: this.props.details.phonenumber,
+      currency: this.props.details.currency,
+      timezone: this.props.details.timezone,
+      language: this.props.details.language,
+      selectedfile: '',
+    });
   }
 
   // username change handler to update state variable with the text entered by the user
@@ -87,13 +87,38 @@ class UserProfile extends PureComponent {
     this.setState({ selectedfile: e.target.files[0] });
   }
 
+  validation = (data) => {
+    let flag = true;
+    const emailpattern = new RegExp(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i);
+    const namepattern = new RegExp(/^[ A-Za-z]+$/);
+    const phonepattern = new RegExp(/^[0-9+-]+$/);
+    if (!emailpattern.test(data.useremail) && data.useremail !== '') {
+      this.setState({
+        message: 'Enter valid email Address',
+      });
+      flag = false;
+    }
+    if (!namepattern.test(data.username) && data.username !== null) {
+      this.setState({
+        message: 'Name can contain only letters and spaces',
+      });
+      flag = false;
+    }
+    if (!phonepattern.test(data.phonenumber) && data.phonenumber !== ''
+     && data.phonenumber !== null) {
+      this.setState({
+        message: 'Phone number can contain only digits ,"+","-"',
+      });
+      flag = false;
+    }
+    return flag;
+  }
+
   saveChanges = (e) => {
     // prevent page from refresh
     e.preventDefault();
-    // set the with credentials to true
-    axios.defaults.withCredentials = true;
-
     const data = {
+      _id: this.state.userID,
       username: this.state.username,
       useremail: this.state.useremail,
       phonenumber: this.state.phonenumber,
@@ -103,20 +128,17 @@ class UserProfile extends PureComponent {
     };
     // data = this.removeEmptyFields(data);
     console.log(data);
-
-    // make a post request with the user data
-    axios.post('http://localhost:3001/userprofile', data)
-      .then((response) => {
-        console.log('Status Code : ', response.status);
-        if (response.status === 200) {
-          this.setState({
-            // eslint-disable-next-line quotes
-            redirect: "/dashboard",
-          });
-        }
-      }).catch(() => {
-        console.log('response is not recieved');
+    if (!this.validation(data)) {
+      this.setState({
+        redirect: '/userprofile',
       });
+    } else {
+      this.props.userProfileUpdate(data);
+      this.setState({
+        redirect: '/dashboard',
+      });
+    }
+    // make a post request with the user data
   }
 
   render() {
@@ -125,7 +147,7 @@ class UserProfile extends PureComponent {
     if (this.state.redirect) {
       redirectVar = <Redirect to={this.state.redirect} />;
     }
-    if (!cookie.load('cookie')) {
+    if (!this.props.loggedIn) {
       redirectVar = <Redirect to="/" />;
     }
     const profileImage = DefaultProfilePic;
@@ -136,6 +158,13 @@ class UserProfile extends PureComponent {
         <NavHomeBar />
 
         <Container>
+          {this.state.message && (
+          <p className="alert alert-success">
+            {' '}
+            {this.state.message }
+            {' '}
+          </p>
+          )}
           <Row>
 
             <Col xs={{ order: 'last' }} md={4}>
@@ -263,4 +292,16 @@ class UserProfile extends PureComponent {
     );
   }
 }
-export default UserProfile;
+UserProfile.propTypes = {
+  loggedIn: PropTypes.bool.isRequired,
+  details: PropTypes.object.isRequired,
+  userProfileUpdate: PropTypes.func.isRequired,
+
+};
+
+const mapStateToProps = (state) => ({
+  loggedIn: state.validation.loggedIn,
+  details: state.information,
+});
+
+export default connect(mapStateToProps, { userProfileUpdate })(UserProfile);

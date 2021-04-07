@@ -43,7 +43,7 @@ class NavHomeBar extends PureComponent {
             <Navbar.Text>
               Signed in as:
             </Navbar.Text>
-            <NavDropdown title={this.props.details.username} id="collasible-nav-dropdown">
+            <NavDropdown title={this.props.details} id="collasible-nav-dropdown">
               <NavDropdown.Item href="/userprofile">Profile</NavDropdown.Item>
               <NavDropdown.Item href="/">{navLogin}</NavDropdown.Item>
             </NavDropdown>
@@ -65,7 +65,7 @@ NavHomeBar.propTypes = {
 
 const mapStateToProps = (state) => ({
   loggedIn: state.validation.loggedIn,
-  details: state.information,
+  details: state.information.username,
 });
 
 export default connect(mapStateToProps, { logout })(NavHomeBar);
