@@ -296,7 +296,7 @@ class UserProfile extends PureComponent {
             </Col>
             <Col xs={{ order: 'first' }} md={4}>
               <h1>Your Profile</h1>
-              <img src={this.state.profileImage} alt="Profile Pic" width="193" height="130" />
+              <img src={this.state.profileImage} alt="Profile Pic" width="300" height="300" />
               <Form.Group Id="formCategory4" name="imageForm">
                 <Form.Label>Profile Image</Form.Label>
                 <Form.Control type="file" id="file" name="profileimage" onChange={this.storeImage} />

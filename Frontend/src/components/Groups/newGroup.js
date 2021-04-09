@@ -1,3 +1,4 @@
+/* eslint-disable react/forbid-prop-types */
 /* eslint-disable react/no-unused-state */
 /* eslint-disable react/no-access-state-in-setstate */
 /* eslint-disable no-console */
@@ -6,7 +7,8 @@ import { Redirect } from 'react-router';
 import {
   Container, Row, Col, Form,
 } from 'react-bootstrap';
-import cookie from 'react-cookies';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import axios from 'axios';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import NavHomeBar from '../DashBoard/NavHomeBar';
@@ -39,25 +41,23 @@ class group extends PureComponent {
   }
 
   componentDidMount() {
-    axios.get('http://localhost:3001/newgroup')
-      .then((response) => {
-        console.log(response);
-        // update the state with the response data
-        this.setState({
-          defaultmember: response.data,
-        });
-      });
+    this.setState({
+      defaultmember: `${this.props.details.username}${'  ('}${this.props.details.useremail})`,
+    });
+    this.getusers();
+  }
 
-    axios.get('http://localhost:3001/allUsers')
+  getusers = () => {
+    axios.defaults.withCredentials = true;
+    // make a post request with the user data
+    const data = { email: this.props.details.useremail };
+    axios.post('http://localhost:3001/getusers/all', data)
       .then((response) => {
-        console.log(response);
         for (let i = 0; i < response.data.length; i += 1) {
           this.setState({
-            allUseremail: [...this.state.allUseremail, response.data[i].userEmail],
             userDetails: [...this.state.userDetails, response.data[i]],
           });
         }
-        console.log('this is userDetails', this.state.userDetails);
       });
   }
 
@@ -72,9 +72,12 @@ class group extends PureComponent {
 
   member1Changehandler = (selectedValue) => {
     if (selectedValue.length !== 0) {
+      const newList = this.state.userDetails
+        .filter((item) => item.useremail !== selectedValue[0].useremail);
       this.setState({
-        memberName1: selectedValue[0].userName,
-        memberEmail1: selectedValue[0].userEmail,
+        memberName1: selectedValue[0].username,
+        memberEmail1: selectedValue[0].useremail,
+        userDetails: newList,
       });
     } else {
       this.setState({
@@ -92,9 +95,12 @@ class group extends PureComponent {
 
   member2Changehandler = (selectedValue) => {
     if (selectedValue.length !== 0) {
+      const newList = this.state.userDetails
+        .filter((item) => item.useremail !== selectedValue[0].useremail);
       this.setState({
-        memberName2: selectedValue[0].userName,
-        memberEmail2: selectedValue[0].userEmail,
+        memberName2: selectedValue[0].username,
+        memberEmail2: selectedValue[0].useremail,
+        userDetails: newList,
       });
     } else {
       this.setState({
@@ -112,9 +118,12 @@ class group extends PureComponent {
 
   member3Changehandler = (selectedValue) => {
     if (selectedValue.length !== 0) {
+      const newList = this.state.userDetails
+        .filter((item) => item.useremail !== selectedValue[0].useremail);
       this.setState({
-        memberName3: selectedValue[0].userName,
-        memberEmail3: selectedValue[0].userEmail,
+        memberName3: selectedValue[0].username,
+        memberEmail3: selectedValue[0].useremail,
+        userDetails: newList,
       });
     } else {
       this.setState({
@@ -132,9 +141,12 @@ class group extends PureComponent {
 
   member4Changehandler = (selectedValue) => {
     if (selectedValue.length !== 0) {
+      const newList = this.state.userDetails
+        .filter((item) => item.useremail !== selectedValue[0].useremail);
       this.setState({
-        memberName4: selectedValue[0].userName,
-        memberEmail4: selectedValue[0].userEmail,
+        memberName4: selectedValue[0].username,
+        memberEmail4: selectedValue[0].usermail,
+        userDetails: newList,
       });
     } else {
       this.setState({
@@ -259,7 +271,7 @@ class group extends PureComponent {
     if (this.state.redirect) {
       redirectVar = <Redirect to={this.state.redirect} />;
     }
-    if (!cookie.load('cookie')) {
+    if (!this.props.loggedIn) {
       redirectVar = <Redirect to="/" />;
     }
     return (
@@ -295,7 +307,7 @@ class group extends PureComponent {
                             id="Name"
                             name="member1"
                             value="Name"
-                            labelKey="userName"
+                            labelKey="username"
                             options={this.state.userDetails}
                             onChange={this.member1Changehandler}
                             placeholder="Name"
@@ -318,7 +330,7 @@ class group extends PureComponent {
                           <Typeahead
                             id="Name"
                             name="member2"
-                            labelKey="userName"
+                            labelKey="username"
                             options={this.state.userDetails}
                             onChange={this.member2Changehandler}
                             placeholder="Name"
@@ -339,7 +351,7 @@ class group extends PureComponent {
                           <Typeahead
                             id="Name"
                             name="member3"
-                            labelKey="userName"
+                            labelKey="username"
                             options={this.state.userDetails}
                             onChange={this.member3Changehandler}
                             placeholder="Name"
@@ -360,7 +372,7 @@ class group extends PureComponent {
                           <Typeahead
                             id="Name"
                             name="member4"
-                            labelKey="userName"
+                            labelKey="username"
                             options={this.state.userDetails}
                             onChange={this.member4Changehandler}
                             placeholder="Name"
@@ -396,4 +408,15 @@ class group extends PureComponent {
   }
 }
 
-export default group;
+group.propTypes = {
+  loggedIn: PropTypes.bool.isRequired,
+  details: PropTypes.object.isRequired,
+
+};
+
+const mapStateToProps = (state) => ({
+  loggedIn: state.validation.loggedIn,
+  details: state.information,
+});
+
+export default connect(mapStateToProps, null)(group);

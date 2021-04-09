@@ -71,11 +71,12 @@ const sessionCurrency = '';
 const Signup = require('./routes/Signup');
 const Login = require('./routes/Login');
 const UserProfile = require('./routes/UserProfile');
+const AllUsers = require('./routes/AllUsers');
 
 app.use('/user', Signup);
 app.use('/user', Login);
 app.use('/user', UserProfile);
-
+app.use('/getusers', AllUsers);
 // start your server on port 3001
 app.listen(3001);
 console.log('Server Listening on port 3001');
