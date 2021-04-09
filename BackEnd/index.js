@@ -10,6 +10,11 @@ const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 
+const AWS = require('aws-sdk');
+const fs = require('fs');
+const multer = require('multer');
+const multerS3 = require('multer-s3');
+
 // use cors to allow cross origin resource sharing
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 

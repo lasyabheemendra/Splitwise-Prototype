@@ -1,3 +1,6 @@
+/* eslint-disable react/no-unused-prop-types */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable react/forbid-prop-types */
 /* eslint-disable react/no-unused-state */
 /* eslint-disable no-console */
@@ -8,8 +11,8 @@ import {
 } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-
 import { userProfileUpdate } from '../../actions/profileAction';
+import { userProfilePictureUpdate } from '../../actions/pictureAction';
 import NavHomeBar from '../DashBoard/NavHomeBar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../../App.css';
@@ -40,6 +43,8 @@ class UserProfile extends PureComponent {
       timezone: this.props.details.timezone,
       language: this.props.details.language,
       selectedfile: '',
+      description: '',
+      profileImage: this.props.details.image,
     });
   }
 
@@ -84,7 +89,7 @@ class UserProfile extends PureComponent {
 
   storeImage = (e) => {
     console.log(e.target.files[0]);
-    this.setState({ selectedfile: e.target.files[0] });
+    this.setState({ description: e.target.value, selectedfile: e.target.files[0] });
   }
 
   validation = (data) => {
@@ -117,6 +122,15 @@ class UserProfile extends PureComponent {
   saveChanges = (e) => {
     // prevent page from refresh
     e.preventDefault();
+    const formData = new FormData();
+    formData.append('profileimage', this.state.selectedfile);
+    formData.append('_id', this.state.userID);
+    formData.append('username', this.state.username);
+    formData.append('useremail', this.state.useremail);
+    formData.append('phonenumber', this.state.phonenumber);
+    formData.append('currency', this.state.currency);
+    formData.append('timezone', this.state.timezone);
+    formData.append('language', this.state.language);
     const data = {
       _id: this.state.userID,
       username: this.state.username,
@@ -125,15 +139,19 @@ class UserProfile extends PureComponent {
       currency: this.state.currency,
       timezone: this.state.timezone,
       language: this.state.language,
+      image: this.state.profileImage,
     };
-    // data = this.removeEmptyFields(data);
-    console.log(data);
+    console.log('sending data to bacend', data);
     if (!this.validation(data)) {
       this.setState({
         redirect: '/userprofile',
       });
     } else {
-      this.props.userProfileUpdate(data);
+      if (this.state.selectedfile === '') {
+        this.props.userProfileUpdate(data);
+      } else {
+        this.props.userProfilePictureUpdate(formData);
+      }
       this.setState({
         redirect: '/dashboard',
       });
@@ -150,7 +168,10 @@ class UserProfile extends PureComponent {
     if (!this.props.loggedIn) {
       redirectVar = <Redirect to="/" />;
     }
-    const profileImage = DefaultProfilePic;
+
+    if (this.state.profileImage === '') {
+      this.setState({ profileImage: DefaultProfilePic });
+    }
 
     return (
       <div id="centre_container">
@@ -275,15 +296,14 @@ class UserProfile extends PureComponent {
             </Col>
             <Col xs={{ order: 'first' }} md={4}>
               <h1>Your Profile</h1>
-              <img src={profileImage} alt="Profile Pic" />
-              <form controlId="formCategory4">
-                <lable>Profile Image</lable>
-                <input type="file" id="file" name="file" onChange={this.storeImage} />
-              </form>
+              <img src={this.state.profileImage} alt="Profile Pic" width="193" height="130" />
+              <Form.Group Id="formCategory4" name="imageForm">
+                <Form.Label>Profile Image</Form.Label>
+                <Form.Control type="file" id="file" name="profileimage" onChange={this.storeImage} />
+              </Form.Group>
             </Col>
           </Row>
           <Row>
-
             <div className="col align-self-end" />
             <button type="button" className="btn btn-success" onClick={this.saveChanges}>Update Profile</button>
           </Row>
@@ -296,6 +316,7 @@ UserProfile.propTypes = {
   loggedIn: PropTypes.bool.isRequired,
   details: PropTypes.object.isRequired,
   userProfileUpdate: PropTypes.func.isRequired,
+  userProfilePictureUpdate: PropTypes.func.isRequired,
 
 };
 
@@ -304,4 +325,5 @@ const mapStateToProps = (state) => ({
   details: state.information,
 });
 
-export default connect(mapStateToProps, { userProfileUpdate })(UserProfile);
+export default connect(mapStateToProps,
+  { userProfileUpdate, userProfilePictureUpdate })(UserProfile);

@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import {
-  USER_DETAILS_SUCCESS, USER_DETAILS_ERROR,
+  USER_DETAILS_SUCCESS, USER_DETAILS_ERROR, USER_PICTURE_SUCCESS,
 } from '../constants/action_type';
 
 const initialState = {
@@ -27,13 +27,17 @@ const information = (state = initialState, action) => {
         currency: action.info.currency,
         timezone: action.info.timezone,
         language: action.info.language,
-        image: '',
+        image: action.info.image,
         invitedGroups: action.info.invitedGroups,
         acceptedGroups: action.info.acceptedGroups,
       };
     case USER_DETAILS_ERROR:
       return {
         error: action.error,
+      };
+    case USER_PICTURE_SUCCESS:
+      return {
+        image: action.info,
       };
     default:
       return state;
