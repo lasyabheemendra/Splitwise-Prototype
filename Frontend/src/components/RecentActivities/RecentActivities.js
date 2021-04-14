@@ -37,22 +37,6 @@ class recentActivity extends PureComponent {
     };
   }
 
-  componentDidMount() {
-    axios.get('http://localhost:3001/recentactivities')
-      .then((response) => {
-        if (response.data !== 'No recent activities found') {
-          this.setState({
-            recentDetails: response.data,
-            recentDetailsAvailable: true,
-            printDetails: response.data,
-          });
-          this.getMygroups();
-        }
-      }).catch(() => {
-        console.log('response.data');
-      });
-  }
-
   getMygroups = () => {
     this.setState({
       allGroups: [],

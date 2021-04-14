@@ -12,7 +12,7 @@ import { logout } from '../../actions/action';
 class NavHomeBar extends PureComponent {
   render() {
     let navLogin = null;
-    if (this.props.loggedIn) {
+    if (localStorage.getItem('token')) {
       navLogin = (
 
         <Link to="/" onClick={this.props.logout}>
@@ -45,7 +45,7 @@ class NavHomeBar extends PureComponent {
             </Navbar.Text>
             <NavDropdown title={this.props.details} id="collasible-nav-dropdown">
               <NavDropdown.Item href="/userprofile">Profile</NavDropdown.Item>
-              <NavDropdown.Item href="/">{navLogin}</NavDropdown.Item>
+              <NavDropdown.Item>{navLogin}</NavDropdown.Item>
             </NavDropdown>
 
           </Navbar.Collapse>
@@ -58,7 +58,6 @@ class NavHomeBar extends PureComponent {
 
 NavHomeBar.propTypes = {
   logout: PropTypes.func.isRequired,
-  loggedIn: PropTypes.bool.isRequired,
   details: PropTypes.string.isRequired,
 
 };

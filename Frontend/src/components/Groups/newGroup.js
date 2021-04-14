@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /* eslint-disable react/forbid-prop-types */
 /* eslint-disable react/no-unused-state */
 /* eslint-disable react/no-access-state-in-setstate */
@@ -35,7 +36,7 @@ class group extends PureComponent {
       memberEmail4: '',
       redirect: null,
       error: {
-        groupnameError: '', memberEmail1Err: '', memberEmail2Err: '', memberEmail3Err: '', memberEmail4Err: '',
+        groupnameError: '', memberEmail1Err: '', memberEmail4Err: '',
       },
     };
   }
@@ -48,13 +49,14 @@ class group extends PureComponent {
   }
 
   getusers = () => {
-    axios.defaults.withCredentials = true;
+    axios.defaults.headers.common.authorization = localStorage.getItem('token');
     // make a post request with the user data
     const data = { email: this.props.details.useremail };
     axios.post('http://localhost:3001/getusers/all', data)
       .then((response) => {
         for (let i = 0; i < response.data.length; i += 1) {
           this.setState({
+            allUseremail: [...this.state.allUseremail, response.data[i].useremail],
             userDetails: [...this.state.userDetails, response.data[i]],
           });
         }
@@ -164,7 +166,7 @@ class group extends PureComponent {
 
   verifyEmailID = (data) => {
     let allValid = true;
-    if (data.groupname === null) {
+    if (data.groupname === '') {
       allValid = false;
       this.setState({
         error: {
@@ -173,7 +175,7 @@ class group extends PureComponent {
 
       });
     }
-    if (!data.useremail1 && !data.useremail2 && !data.useremail3 && !data.useremail4) {
+    if (data.user.length === 0) {
       allValid = false;
       this.setState({
         error: {
@@ -182,34 +184,19 @@ class group extends PureComponent {
 
       });
     }
-    if (data.useremail1 && !this.state.allUseremail.includes(data.useremail1)) {
-      allValid = false;
-      this.setState({
-        error: { memberEmail1Err: 'email address entered in first field is not valid' },
-      });
-    }
-    if (data.useremail2 && !this.state.allUseremail.includes(data.useremail2)) {
-      allValid = false;
-      this.setState({
-        error: { memberEmail2Err: 'email address entered in second field is not valid' },
-      });
-    }
-    if (data.useremail3 && !this.state.allUseremail.includes(data.useremail3)) {
-      allValid = false;
-      this.setState({
-        error: { memberEmail3Err: 'email address entered in third field is not valid' },
-      });
-    }
-    if (data.useremail4 && !this.state.allUseremail.includes(data.useremail4)) {
-      allValid = false;
-      this.setState({
-        error: { memberEmail4Err: 'email address entered in fourth field is not valid' },
-      });
+
+    for (let i = 0; i < data.user.length; i += 1) {
+      if (!this.state.allUseremail.includes(data.user[i].useremail)) {
+        allValid = false;
+        this.setState({
+          error: { memberEmail1Err: `email address entered in field${i + 1} is not valid` },
+        });
+      }
     }
     if (allValid) {
       this.setState({
         error: {
-          groupnameError: '', memberEmail1Err: '', memberEmail2Err: '', memberEmail3Err: '', memberEmail4Err: '',
+          groupnameError: '', memberEmail1Err: '', memberEmail4Err: '',
         },
       });
     }
@@ -221,25 +208,27 @@ class group extends PureComponent {
     e.preventDefault();
     const data = {
       groupname: this.state.groupname,
+      user: [],
     };
     const count = 1;
     if (this.state.memberEmail1) {
-      data.useremail1 = this.state.memberEmail1;
+      data.user.push({ username: this.state.memberName1, useremail: this.state.memberEmail1 });
     }
     if (this.state.memberEmail2) {
-      data.useremail2 = this.state.memberEmail2;
+      data.user.push({ username: this.state.memberName2, useremail: this.state.memberEmail2 });
     }
     if (this.state.memberEmail3) {
-      data.useremail3 = this.state.memberEmail3;
+      data.user.push({ username: this.state.memberName3, useremail: this.state.memberEmail3 });
     }
     if (this.state.memberEmail4) {
-      data.useremail4 = this.state.memberEmail4;
+      data.user.push({ username: this.state.memberName4, useremail: this.state.memberEmail4 });
     }
     data.count = count;
-    console.log(data);
-    console.log(this.state.error);
+    console.log('outside', data);
+    console.log('outside', this.state.error);
     if (this.verifyEmailID(data)) {
-      console.log(this.state.error);
+      console.log('inside', data);
+      console.log('inside', this.state.error);
       // set the with credentials to true
       axios.defaults.withCredentials = true;
       // make a post request with the user data
@@ -271,7 +260,7 @@ class group extends PureComponent {
     if (this.state.redirect) {
       redirectVar = <Redirect to={this.state.redirect} />;
     }
-    if (!this.props.loggedIn) {
+    if (!localStorage.getItem('token')) {
       redirectVar = <Redirect to="/" />;
     }
     return (
@@ -409,7 +398,6 @@ class group extends PureComponent {
 }
 
 group.propTypes = {
-  loggedIn: PropTypes.bool.isRequired,
   details: PropTypes.object.isRequired,
 
 };

@@ -37,7 +37,7 @@ class DashBoard extends PureComponent {
   render() {
     // redirect based on successful login
     let redirectVar = null;
-    if (!this.props.loggedIn) {
+    if (!localStorage.getItem('token')) {
       redirectVar = <Redirect to="/" />;
     }
     return (
@@ -178,7 +178,6 @@ class DashBoard extends PureComponent {
   }
 }
 DashBoard.propTypes = {
-  loggedIn: PropTypes.bool.isRequired,
   details: PropTypes.string.isRequired,
 
 };

@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /* eslint-disable camelcase */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-console */
@@ -47,7 +48,8 @@ class SignUp extends Component {
     render() {
       // redirect based on successful login
       let redirectVar = null;
-      if (this.props.loggedIn) {
+      if (this.props.token.length > 0) {
+        localStorage.setItem('token', this.props.token);
         redirectVar = <Redirect to="/dashboard" />;
       }
       return (
@@ -111,7 +113,7 @@ class SignUp extends Component {
 SignUp.propTypes = {
   signup: PropTypes.func.isRequired,
   error: PropTypes.string.isRequired,
-  loggedIn: PropTypes.bool.isRequired,
+  token: PropTypes.string.isRequired,
 
 };
 

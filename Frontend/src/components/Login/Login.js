@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /* eslint-disable camelcase */
 import React, { Component } from 'react';
 import '../../App.css';
@@ -37,7 +38,8 @@ class Login extends Component {
   render() {
     // redirect based on successful login
     let redirectVar = null;
-    if (this.props.loggedIn) {
+    if (this.props.token.length > 0) {
+      localStorage.setItem('token', this.props.token);
       redirectVar = <Redirect to="/dashboard" />;
     }
     return (
@@ -92,7 +94,7 @@ class Login extends Component {
 
 Login.propTypes = {
   login: PropTypes.func.isRequired,
-  loggedIn: PropTypes.bool.isRequired,
+  token: PropTypes.string.isRequired,
   error: PropTypes.string.isRequired,
 
 };

@@ -165,7 +165,7 @@ class UserProfile extends PureComponent {
     if (this.state.redirect) {
       redirectVar = <Redirect to={this.state.redirect} />;
     }
-    if (!this.props.loggedIn) {
+    if (!localStorage.getItem('token')) {
       redirectVar = <Redirect to="/" />;
     }
 

@@ -7,7 +7,7 @@ import {
 
 export const userProfileUpdate = (data) => (dispatch) => {
   // set the with credentials to true
-  axios.defaults.withCredentials = true;
+  axios.defaults.headers.common.authorization = localStorage.getItem('token');
   // make a post request with the user data
   axios.post('http://localhost:3001/user/update', data)
     .then((response) => {
