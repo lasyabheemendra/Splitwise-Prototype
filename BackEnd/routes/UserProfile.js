@@ -12,6 +12,7 @@ const multerS3 = require('multer-s3');
 const path = require('path');
 
 const router = express.Router();
+const { checkAuth } = require('../passport');
 const Users = require('../Models/UsersModel');
 
 const S3_BUCKET = 'lasyabucket';
@@ -52,7 +53,7 @@ AWS.config.update({
 // create S3 instance
 const s3 = new AWS.S3();
 
-router.post('/update', (req, res) => {
+router.post('/update', checkAuth, (req, res) => {
   console.log('Inside user update Request');
   console.log('Req Body : ', req.body);
   Users.updateOne({ _id: req.body._id }, {
@@ -95,7 +96,7 @@ const upload = multer({
   fileFilter,
 });
 
-router.post('/profileimageupload', upload.single('profileimage'), (req, res) => {
+router.post('/profileimageupload', checkAuth, upload.single('profileimage'), (req, res) => {
   console.log('formdata request', req);
   const { file } = req;
   const s3FileURL = process.env.AWS_Uploaded_File_URL_LINK;

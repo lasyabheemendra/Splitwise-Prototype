@@ -2,9 +2,10 @@
 const express = require('express');
 
 const router = express.Router();
+const { checkAuth } = require('../passport');
 const Users = require('../Models/UsersModel');
 
-router.post('/all', (req, res) => {
+router.post('/all', checkAuth, (req, res) => {
   console.log('Inside user update Request');
   console.log('Req Body : ', req);
   Users.find({ useremail: { $ne: req.body.email } }, { username: 1, useremail: 1, _id: 0 },

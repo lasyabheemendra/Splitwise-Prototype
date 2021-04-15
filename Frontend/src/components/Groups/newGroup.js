@@ -13,6 +13,7 @@ import { connect } from 'react-redux';
 import axios from 'axios';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import NavHomeBar from '../DashBoard/NavHomeBar';
+import { groupCreate } from '../../actions/newGroup';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../../App.css';
 import DefaultGroupPic from './download.png';
@@ -225,30 +226,13 @@ class group extends PureComponent {
     }
     data.count = count;
     console.log('outside', data);
-    console.log('outside', this.state.error);
     if (this.verifyEmailID(data)) {
+      data.user.unshift({
+        username: this.props.details.username,
+        useremail: this.props.details.useremail,
+      });
       console.log('inside', data);
-      console.log('inside', this.state.error);
-      // set the with credentials to true
-      axios.defaults.withCredentials = true;
-      // make a post request with the user data
-      axios.post('http://localhost:3001/newGroup', data)
-        .then((response) => {
-          if (response.data === 'ok') {
-            this.setState({
-              // eslint-disable-next-line quotes
-              redirect: "/dashboard",
-            });
-          } else {
-            this.setState({
-              error: {
-                groupnameError: 'Please enter unique Group Name!',
-              },
-            });
-          }
-        }).catch(() => {
-          console.log('response is not recieved');
-        });
+      this.props.groupCreate(data);
     } else {
       console.log('emails are invalid');
       console.log(this.state.error);
@@ -257,8 +241,8 @@ class group extends PureComponent {
 
   render() {
     let redirectVar = null;
-    if (this.state.redirect) {
-      redirectVar = <Redirect to={this.state.redirect} />;
+    if (this.props.groupcreated) {
+      redirectVar = <Redirect to="/dashboard" />;
     }
     if (!localStorage.getItem('token')) {
       redirectVar = <Redirect to="/" />;
@@ -280,6 +264,13 @@ class group extends PureComponent {
                   <p className="alert alert-success">
                     {' '}
                     {this.state.error.groupnameError }
+                    {' '}
+                  </p>
+                  )}
+                  {this.props.error && (
+                  <p className="alert alert-success">
+                    {' '}
+                    {this.props.error}
                     {' '}
                   </p>
                   )}
@@ -399,12 +390,16 @@ class group extends PureComponent {
 
 group.propTypes = {
   details: PropTypes.object.isRequired,
+  groupCreate: PropTypes.func.isRequired,
+  groupcreated: PropTypes.bool.isRequired,
+  error: PropTypes.string.isRequired,
 
 };
 
 const mapStateToProps = (state) => ({
-  loggedIn: state.validation.loggedIn,
+  groupcreated: state.groupvalidation.groupcreated,
   details: state.information,
+  error: state.groupvalidation.error,
 });
 
-export default connect(mapStateToProps, null)(group);
+export default connect(mapStateToProps, { groupCreate })(group);

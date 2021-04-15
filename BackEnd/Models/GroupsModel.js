@@ -26,8 +26,8 @@ const expenseSchema = new Schema({
 const groupsSchema = new Schema({
   groupName: { type: String, required: true, unique: true },
   numberOfMembers: { type: Number, default: 1 },
-  members: { type: memberSchema },
-  expenses: { type: expenseSchema },
+  members: [{ type: memberSchema }],
+  expenses: [{ type: expenseSchema }],
 
 },
 {
