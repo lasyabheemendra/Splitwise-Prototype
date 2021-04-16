@@ -5,6 +5,7 @@ const express = require('express');
 const router = express.Router();
 const { checkAuth } = require('../passport');
 const Groups = require('../Models/GroupsModel');
+const Users = require('../Models/UsersModel');
 
 router.post('/createnew', checkAuth, (req, res) => {
   console.log('Inside user update Request');
@@ -49,10 +50,28 @@ router.post('/createnew', checkAuth, (req, res) => {
           });
           res.end('Failed to Create Group');
         } else {
-          res.writeHead(200, {
-            'Content-Type': 'text/plain',
+          Users.updateOne({
+            useremail: req.body.user[0].useremail,
+          }, { $push: { acceptedGroups: req.body.groupname } }, (errors, results) => {
+            if (errors) {
+              res.writeHead(500, {
+                'Content-Type': 'text/plain',
+              });
+              res.end('Failed to Add Group to user list');
+            } else {
+              Users.findOne({ useremail: req.body.user[0].useremail },
+                (err1, user) => {
+                  if (err1) {
+                    res.status(500).end('Error Occured while fetching user details');
+                  }
+                  console.log(JSON.stringify(user));
+                  res.writeHead(200, {
+                    'Content-Type': 'text/plain',
+                  });
+                  res.status(200).end(JSON.stringify(user));
+                });
+            }
           });
-          res.status(200).end('Success');
         }
       });
     }

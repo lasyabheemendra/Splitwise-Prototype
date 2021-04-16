@@ -1,5 +1,5 @@
 import {
-  NEW_GROUP_SUCCESS, NEW_GROUP_ERROR,
+  NEW_GROUP_SUCCESS, NEW_GROUP_ERROR, NEW_GROUP_RESET,
 } from '../constants/action_type';
 
 const initialState = {
@@ -18,6 +18,11 @@ const groupvalidation = (state = initialState, action) => {
       return {
         groupcreated: false,
         error: action.error,
+      };
+    case NEW_GROUP_RESET:
+      return {
+        groupcreated: false,
+        error: '',
       };
 
     default:

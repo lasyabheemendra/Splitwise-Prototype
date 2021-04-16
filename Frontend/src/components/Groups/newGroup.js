@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable linebreak-style */
 /* eslint-disable react/forbid-prop-types */
 /* eslint-disable react/no-unused-state */
@@ -13,7 +14,7 @@ import { connect } from 'react-redux';
 import axios from 'axios';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import NavHomeBar from '../DashBoard/NavHomeBar';
-import { groupCreate } from '../../actions/newGroup';
+import { groupCreate, cleargroupProp } from '../../actions/newGroup';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../../App.css';
 import DefaultGroupPic from './download.png';
@@ -43,10 +44,12 @@ class group extends PureComponent {
   }
 
   componentDidMount() {
-    this.setState({
-      defaultmember: `${this.props.details.username}${'  ('}${this.props.details.useremail})`,
-    });
+    this._isMounted = true;
     this.getusers();
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   getusers = () => {
@@ -242,7 +245,8 @@ class group extends PureComponent {
   render() {
     let redirectVar = null;
     if (this.props.groupcreated) {
-      redirectVar = <Redirect to="/dashboard" />;
+      this.props.cleargroupProp();
+      redirectVar = <Redirect to="dashboard" />;
     }
     if (!localStorage.getItem('token')) {
       redirectVar = <Redirect to="/" />;
@@ -391,8 +395,9 @@ class group extends PureComponent {
 group.propTypes = {
   details: PropTypes.object.isRequired,
   groupCreate: PropTypes.func.isRequired,
-  groupcreated: PropTypes.bool.isRequired,
+  cleargroupProp: PropTypes.func.isRequired,
   error: PropTypes.string.isRequired,
+  groupcreated: PropTypes.bool.isRequired,
 
 };
 
@@ -402,4 +407,4 @@ const mapStateToProps = (state) => ({
   error: state.groupvalidation.error,
 });
 
-export default connect(mapStateToProps, { groupCreate })(group);
+export default connect(mapStateToProps, { groupCreate, cleargroupProp })(group);

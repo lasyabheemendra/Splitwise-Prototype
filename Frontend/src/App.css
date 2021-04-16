@@ -26,7 +26,7 @@
 }
 
 .App-link {
-  color: #61dafb;
+  color: #c0cccf;
 }
 
 @keyframes App-logo-spin {
@@ -134,3 +134,8 @@
   height:100%;
   border-left:1px solid gray;
  }
+
+ .navbar-inner {
+  background-color: #48be9d;
+}
+.dropdown .dropdown-menu .dropdown-item:active, .dropdown .dropdown-menu .dropdown-item:hover{background-color: pink !important;}

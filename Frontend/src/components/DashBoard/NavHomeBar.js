@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unused-prop-types */
 /* eslint-disable no-console */
 import React, { PureComponent } from 'react';
 import { Link } from 'react-router-dom';
@@ -7,6 +6,8 @@ import { connect } from 'react-redux';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { logout } from '../../actions/action';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '../../App.css';
 
 // create the Navbar Component
 class NavHomeBar extends PureComponent {
@@ -24,18 +25,17 @@ class NavHomeBar extends PureComponent {
     }
     return (
       <div>
-        <Navbar bg="dark" variant="dark">
+        <Navbar className="navbar-inner" variant="dark">
           <Navbar.Brand href="/dashboard">
             <img
               alt=""
               src="./download.png"
               width="30"
               height="30"
-              className="d-inline-block align-top"
             />
             Welcome to SplitWise
           </Navbar.Brand>
-          <Link to="/dashboard">
+          <Link to="/dashboard" style={{ color: 'blue' }}>
             <span className="glyphicon glyphicon-user" />
             Dashboard
           </Link>

@@ -55,7 +55,7 @@ class DashBoard extends PureComponent {
             <Col xs={{ order: 'last' }} md={4} />
             <Col xs md={8} ms={4}>
               <div className="dashboard header">
-                <Navbar bg="secondary" variant="light">
+                <Navbar bg="light" variant="light">
                   <Navbar.Collapse className="justify-content-start">
                     <h3 className="font-weight-bold">Dashboard </h3>
                   </Navbar.Collapse>
@@ -183,7 +183,6 @@ DashBoard.propTypes = {
 };
 
 const mapStateToProps = (state) => ({
-  loggedIn: state.validation.loggedIn,
   details: state.information,
 });
 

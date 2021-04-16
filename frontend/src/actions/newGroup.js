@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 import axios from 'axios';
 import {
-  NEW_GROUP_SUCCESS, NEW_GROUP_ERROR,
+  NEW_GROUP_SUCCESS, NEW_GROUP_ERROR, USER_DETAILS_SUCCESS, NEW_GROUP_RESET,
 } from '../constants/action_type';
 
 export const groupCreate = (data) => (dispatch) => {
@@ -11,8 +11,8 @@ export const groupCreate = (data) => (dispatch) => {
   // make a post request with the user data
   axios.post('http://localhost:3001/group/createnew', data)
     .then((response) => {
-      console.log(response);
       if (response.status === 200) {
+        dispatch({ type: USER_DETAILS_SUCCESS, info: response.data });
         dispatch({ type: NEW_GROUP_SUCCESS });
       }
     }).catch(() => {
@@ -20,4 +20,6 @@ export const groupCreate = (data) => (dispatch) => {
     });
 };
 
-export default groupCreate;
+export const cleargroupProp = () => (dispatch) => {
+  dispatch({ type: NEW_GROUP_RESET });
+};
