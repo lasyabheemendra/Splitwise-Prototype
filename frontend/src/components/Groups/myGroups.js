@@ -13,6 +13,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { acceptGroup } from '../../actions/acceptGroup';
 import NavHomeBar from '../DashBoard/NavHomeBar';
 
 class mygroups extends PureComponent {
@@ -29,6 +30,12 @@ class mygroups extends PureComponent {
   componentDidMount() {
     this.getMygroups();
     this.getInvitedgroups();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.details.acceptedGroups !== this.props.details.acceptedGroups) {
+      this.getMygroups();
+    }
   }
 
   getInvitedgroups = () => {
@@ -61,32 +68,27 @@ class mygroups extends PureComponent {
   }
 
    getMygroups = () => {
-     this.setState({
-       allGroups: [],
-     });
      this.setState({ allGroups: this.props.details.acceptedGroups });
    };
 
    editSearchTerm = (e) => {
      this.setState({ searchTerm: e.target.value });
    }
-
    // eslint-disable-next-line max-len
    // dynamicSearch = () => this.state.allGroups.filter((name) => name.toLowerCase().includes(this.state.searchTerm.toLowerCase()));
 
-    onAccept = () => {
+    onAccept = async () => {
     // By calling the belowe method will get the selected values programatically
-      const data = this.multiselectRef.current.getSelectedItems();
-      axios.post('http://localhost:3001/mygroups', data).then((response) => {
-        if (response.status === 200) {
-          this.multiselectRef.current.resetSelectedValues();
-          this.setState({
-            invitedGroups: this.state.invitedGroups.filter(
-              (el) => !data.includes(el),
-            ),
-          });
-          this.getMygroups();
-        }
+      const data = {};
+      data.useremail = this.props.details.useremail;
+      data.groups = this.multiselectRef.current.getSelectedItems();
+
+      await this.props.acceptGroup(data);
+      await this.multiselectRef.current.resetSelectedValues();
+      await this.setState({
+        invitedGroups: this.state.invitedGroups.filter(
+          (el) => !data.groups.includes(el),
+        ),
       });
     };
 
@@ -173,10 +175,13 @@ class mygroups extends PureComponent {
 }
 mygroups.propTypes = {
   details: PropTypes.string.isRequired,
+  acceptGroup: PropTypes.func.isRequired,
+  acceptederror: PropTypes.bool.isRequired,
 
 };
 
 const mapStateToProps = (state) => ({
   details: state.information,
+  acceptederror: state.groupdetails.acceptederror,
 });
-export default connect(mapStateToProps, null)(mygroups);
+export default connect(mapStateToProps, { acceptGroup })(mygroups);
