@@ -8,6 +8,8 @@ import DashBoard from './DashBoard/Dashboard';
 import UserProfile from './UserProfile/UserProfile';
 import newgroup from './Groups/newGroup';
 import mygroups from './Groups/myGroups';
+
+import groupPage from './Groups/groupPage';
 import recentActivity from './RecentActivities/RecentActivities';
 
 class Main extends PureComponent {
@@ -23,6 +25,7 @@ class Main extends PureComponent {
           <Route exact path="/userprofile" component={UserProfile} />
           <Route exact path="/newgroup" component={newgroup} />
           <Route exact path="/mygroups" component={mygroups} />
+          <Route exact path="/grouppage/:Name" component={groupPage} />
           <Route exact path="/recentactivity" component={recentActivity} />
 
         </Switch>

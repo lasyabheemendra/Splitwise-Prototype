@@ -74,6 +74,7 @@ const UserProfile = require('./routes/UserProfile');
 const AllUsers = require('./routes/AllUsers');
 const newGroup = require('./routes/NewGroup');
 const invitedGroup = require('./routes/InvitedGroups');
+const groupInfo = require('./routes/GroupInfo');
 
 app.use('/user', Signup);
 app.use('/user', Login);
@@ -81,6 +82,8 @@ app.use('/user', UserProfile);
 app.use('/getusers', AllUsers);
 app.use('/group', newGroup);
 app.use('/mygroups', invitedGroup);
+app.use('/groups', groupInfo);
+
 // start your server on port 3001
 app.listen(3001);
 console.log('Server Listening on port 3001');
