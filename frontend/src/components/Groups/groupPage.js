@@ -77,11 +77,11 @@ class groupPage extends PureComponent {
     this.props.getMemberInfo(data);
   }
 
-  getExpenses = () => {
-    this.setState({
+  getExpenses = async () => {
+    await this.setState({
       allExpenses: _.reverse(this.props.groupinfo.expenses),
     });
-    this.getBalance();
+    await this.getBalance();
   }
 
   getBalance= () => {
@@ -219,6 +219,7 @@ class groupPage extends PureComponent {
 groupPage.propTypes = {
   details: PropTypes.string.isRequired,
   getMemberInfo: PropTypes.func.isRequired,
+  groupinfo: PropTypes.string.isRequired,
 
 };
 

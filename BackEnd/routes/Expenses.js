@@ -89,42 +89,44 @@ router.post('/addexpense', checkAuth, (req, res) => {
               console.log(err3);
               res.status(500).end('Error Occured while updating owes status');
             }
-          });
-          Groups.updateMany({
-            groupName: req.body.groupname,
-          }, { $set: { 'members.$[elem].status': 'gets back' } }, {
-            arrayFilters: [{ 'elem.balance': { $gt: 0 } }],
-          },
-          (err4, paidmember) => {
-            if (err4) {
-              console.log(err4);
-              res.status(500).end('Error Occured while updating gets back status');
-            }
-          });
-          Groups.find({ groupName: req.body.groupname },
-            {
-              groupName: 1,
-              numberOfMembers: 1,
-              members: {
-                $filter: {
-                  input: '$members',
-                  as: 'members',
-                  cond: {
-                    $and: [
-                      { $eq: ['$$members.accepted', 1] },
-                    ],
-                  },
-                },
-              },
-              expenses: 1,
+            Groups.updateMany({
+              groupName: req.body.groupname,
+            }, { $set: { 'members.$[elem].status': 'gets back' } }, {
+              arrayFilters: [{ 'elem.balance': { $gt: 0 } }],
             },
-            (err2, groups) => {
-              if (err) {
-                console.log(err);
+            (err4, notpaidmember) => {
+              if (err4) {
+                console.log(err4);
+                res.status(500).end('Error Occured while updating gets back status');
               }
-              const upadtedresult = { info: groups[0] };
-              res.status(200).end(JSON.stringify(upadtedresult));
+
+              Groups.find({ groupName: req.body.groupname },
+                {
+                  groupName: 1,
+                  numberOfMembers: 1,
+                  members: {
+                    $filter: {
+                      input: '$members',
+                      as: 'members',
+                      cond: {
+                        $and: [
+                          { $eq: ['$$members.accepted', 1] },
+                        ],
+                      },
+                    },
+                  },
+                  expenses: 1,
+                },
+                (err2, groups) => {
+                  if (err) {
+                    console.log(err);
+                  }
+                  const upadtedresult = { info: groups[0] };
+                  console.log('add expense result', JSON.stringify(upadtedresult));
+                  res.status(200).end(JSON.stringify(upadtedresult));
+                });
             });
+          });
         });
     } else {
       res.status(400).end('No accepted groups modified');
