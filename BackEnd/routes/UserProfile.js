@@ -140,18 +140,17 @@ router.post('/profileimageupload', checkAuth, upload.single('profileimage'), (re
           console.log(error);
           res.status(401).end('User profile not updated');
         }
-        const result = {
-          _id: req.body._id,
-          username: req.body.username,
-          useremail: req.body.useremail,
-          phonenumber: req.body.phonenumber,
-          currency: req.body.currency,
-          timezone: req.body.timezone,
-          language: req.body.language,
-          image: data.Location,
-        };
-        console.log(JSON.stringify(result));
-        res.status(200).end(JSON.stringify(result));
+        Users.findOne({ useremail: req.body.useremail },
+          (err1, result) => {
+            if (err1) {
+              res.status(500).end('Error Occured while fetching user details');
+            }
+            console.log(JSON.stringify(result));
+            res.writeHead(200, {
+              'Content-Type': 'text/plain',
+            });
+            res.status(200).end(JSON.stringify(result));
+          });
       });
     }
   });

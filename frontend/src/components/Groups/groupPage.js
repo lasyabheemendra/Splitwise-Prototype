@@ -1,7 +1,7 @@
+/* eslint-disable no-console */
 /* eslint-disable react/no-unused-state */
 /* eslint-disable react/no-access-state-in-setstate */
 /* eslint-disable react/prop-types */
-/* eslint-disable no-console */
 import React, { PureComponent } from 'react';
 import { Redirect } from 'react-router';
 import {
@@ -10,6 +10,7 @@ import {
 import BootstrapTable from 'react-bootstrap-table-next';
 import axios from 'axios';
 import numeral from 'numeral';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import NavHomeBar from '../DashBoard/NavHomeBar';
@@ -23,17 +24,17 @@ class groupPage extends PureComponent {
     this.state = {
       allExpenses: '',
       columns: [{
-        dataField: 'paid_on',
+        dataField: 'paidOn',
         text: 'Paid ON',
       }, {
-        dataField: 'expense_name',
+        dataField: 'name',
         text: 'Expense Name',
       },
       {
-        dataField: 'paid_by',
+        dataField: 'paidBy',
         text: 'Paid BY',
       }, {
-        dataField: 'amount_paid',
+        dataField: 'amount',
         text: 'Amount Paid',
       }],
       groupBalance: [],
@@ -52,7 +53,23 @@ class groupPage extends PureComponent {
 
     });
     this.getmemberInfo();
+    this.getacceptedMembers();
     this.getExpenses();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.groupinfo.numberOfMembers !== this.props.groupinfo.numberOfMembers) {
+      this.getacceptedMembers();
+    }
+    if (prevProps.groupinfo.expenses !== this.props.groupinfo.expenses) {
+      this.getExpenses();
+    }
+  }
+
+  getacceptedMembers = () => {
+    if (this.props.groupinfo.numberOfMembers > 1) {
+      this.setState({ acceptedMembers: true });
+    }
   }
 
   getmemberInfo = () => {
@@ -62,7 +79,7 @@ class groupPage extends PureComponent {
 
   getExpenses = () => {
     this.setState({
-      allExpenses: this.props.groupinfo.expenses,
+      allExpenses: _.reverse(this.props.groupinfo.expenses),
     });
     this.getBalance();
   }
@@ -71,20 +88,21 @@ class groupPage extends PureComponent {
     this.setState({
       groupBalance: [],
     });
-    for (let i = 0; i < this.props.groupinfo.members.length; i += 1) {
-      if (this.props.groupinfo.members[i].balance < 0) {
-        this.props.groupinfo.members[i].balance = `owes ${this.props.details.currency}${numeral(Math.abs(this.props.groupinfo.members[i].balance)).format('0.00')}`;
-        this.setState({
-          groupBalance: [...this.state.groupBalance, this.props.groupinfo.members[i]],
-        });
-      } else {
-        this.props.groupinfo.members[i].balance = `gets back ${this.props.details.currency}${numeral(this.props.groupinfo.members[i].balance).format('0.00')}`;
-        this.setState({
-          groupBalance: [...this.state.groupBalance, this.props.groupinfo.members[i]],
-        });
+    const tempGroupBalanceShow = [];
+    const tempGroupBalance = this.props.groupinfo.members;
+    for (let i = 0; i < tempGroupBalance.length; i += 1) {
+      if (tempGroupBalance[i].balance < 0) {
+        tempGroupBalance[i].balance = `owes ${this.props.details.currency}${numeral(Math.abs(tempGroupBalance[i].balance)).format('0.00')}`;
+        tempGroupBalanceShow.push(tempGroupBalance[i]);
+      } else if (tempGroupBalance[i].balance > 0) {
+        tempGroupBalance[i].balance = `gets back ${this.props.details.currency}${numeral(tempGroupBalance[i].balance).format('0.00')}`;
+        tempGroupBalanceShow.push(tempGroupBalance[i]);
       }
     }
-    console.log('group balances', this.state.groupBalance);
+    this.setState({
+      groupBalance: tempGroupBalanceShow,
+    });
+    console.log('group balances 1', this.state.groupBalance);
     if (this.state.groupBalance.length > 0) {
       this.setState({ showButton: false });
     }
@@ -110,7 +128,7 @@ class groupPage extends PureComponent {
      if (!localStorage.getItem('token')) {
        redirectVar = <Redirect to="/" />;
      }
-     console.log('group balances inside render', this.state.groupBalance);
+     console.log('groupBalance inside render', this.state.groupBalance);
      return (
        <div id="centre_container">
          {redirectVar}
@@ -131,12 +149,12 @@ class groupPage extends PureComponent {
                    </div>
                    <div>
                      {this.state.groupBalance && this.state.groupBalance.map((data) => (
-                       <div key={data.userName}>
+                       <div key={data.name}>
                          <p>
                            <strong>
                              <i>
                                {' '}
-                               {data.userName}
+                               {data.name}
                                {' '}
                              </i>
                              <sub>

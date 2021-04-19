@@ -1,5 +1,4 @@
 /* eslint-disable no-unused-vars */
-/* eslint-disable no-console */
 import React, { PureComponent } from 'react';
 import {
   Container, Row, Col, Button, Navbar, Modal, Form,

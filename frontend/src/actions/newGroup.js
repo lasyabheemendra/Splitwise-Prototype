@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-console */
 import axios from 'axios';
 import {
   NEW_GROUP_SUCCESS, NEW_GROUP_ERROR, USER_DETAILS_SUCCESS, NEW_GROUP_RESET,

@@ -3,7 +3,6 @@
 /* eslint-disable react/forbid-prop-types */
 /* eslint-disable react/no-unused-state */
 /* eslint-disable react/no-access-state-in-setstate */
-/* eslint-disable no-console */
 import React, { PureComponent } from 'react';
 import { Redirect } from 'react-router';
 import {
@@ -228,17 +227,14 @@ class group extends PureComponent {
       data.user.push({ username: this.state.memberName4, useremail: this.state.memberEmail4 });
     }
     data.count = count;
-    console.log('outside', data);
     if (this.verifyEmailID(data)) {
       data.user.unshift({
         username: this.props.details.username,
         useremail: this.props.details.useremail,
       });
-      console.log('inside', data);
       this.props.groupCreate(data);
     } else {
-      console.log('emails are invalid');
-      console.log(this.state.error);
+      //
     }
   }
 

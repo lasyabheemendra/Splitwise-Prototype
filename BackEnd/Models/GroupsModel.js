@@ -14,9 +14,11 @@ const memberSchema = new Schema({
 });
 
 const expenseSchema = new Schema({
-  description: { type: String },
+
+  name: { type: String },
+  paidBy: { type: String },
+  paidOn: { type: String },
   amount: { type: Number, default: 0 },
-  paidBy: { type: Number, default: 0 },
   notes: [{ noteby: String, noteText: String }],
 
 }, {

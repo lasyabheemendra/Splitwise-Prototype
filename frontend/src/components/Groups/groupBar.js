@@ -1,7 +1,6 @@
 /* eslint-disable no-undef */
 /* eslint-disable react/no-unused-state */
 /* eslint-disable no-unused-vars */
-/* eslint-disable no-console */
 import React, { PureComponent } from 'react';
 import { useParams } from 'react-router-dom';
 
@@ -9,6 +8,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Navbar, Button, Modal } from 'react-bootstrap';
 import axios from 'axios';
+import { addExpense } from '../../actions/expenseAction';
 
 class GroupBar extends PureComponent {
   constructor(props) {
@@ -67,25 +67,15 @@ class GroupBar extends PureComponent {
     if (this.state.description && this.state.amount) {
       const data = {
         groupname: this.props.groupinfo.groupName,
+        NOM: this.props.groupinfo.numberOfMembers,
         description: this.state.description,
-        amount: this.sate.amount,
+        amount: this.state.amount,
         paidby: this.props.details.username,
+        paidbyemail: this.props.details.useremail,
       };
-      axios.post('http://localhost:3001/grouppage', data)
-        .then((response) => {
-          if (response.data === 'Successfully added expense and updated member Balance') {
-            hideModal();
-            setDescription('');
-            setAmount('');
-            setMessage('');
-            getExpenses();
-          } else {
-            setMessage(response.data);
-          }
-        })
-        .catch(() => {
-          console.log('response is not recieved');
-        });
+      this.props.addExpense(data);
+      this.hideModal();
+      this.setState({ description: '', amount: '' });
     }
   };
 
@@ -151,6 +141,7 @@ class GroupBar extends PureComponent {
 GroupBar.propTypes = {
   groupinfo: PropTypes.string.isRequired,
   details: PropTypes.string.isRequired,
+  addExpense: PropTypes.func.isRequired,
 
 };
 
@@ -159,4 +150,4 @@ const mapStateToProps = (state) => ({
   groupinfo: state.groupinformation,
 });
 
-export default connect(mapStateToProps, null)(GroupBar);
+export default connect(mapStateToProps, { addExpense })(GroupBar);

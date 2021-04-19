@@ -75,6 +75,7 @@ const AllUsers = require('./routes/AllUsers');
 const newGroup = require('./routes/NewGroup');
 const invitedGroup = require('./routes/InvitedGroups');
 const groupInfo = require('./routes/GroupInfo');
+const expenses = require('./routes/Expenses');
 
 app.use('/user', Signup);
 app.use('/user', Login);
@@ -83,6 +84,7 @@ app.use('/getusers', AllUsers);
 app.use('/group', newGroup);
 app.use('/mygroups', invitedGroup);
 app.use('/groups', groupInfo);
+app.use('/expense', expenses);
 
 // start your server on port 3001
 app.listen(3001);

@@ -1,6 +1,5 @@
 /* eslint-disable react/no-unused-prop-types */
 /* eslint-disable react/no-access-state-in-setstate */
-/* eslint-disable no-console */
 import React, { PureComponent } from 'react';
 import {
   Container, Row, Col, Form,
