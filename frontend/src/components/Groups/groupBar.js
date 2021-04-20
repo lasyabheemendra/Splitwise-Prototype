@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable no-undef */
 /* eslint-disable react/no-unused-state */
 /* eslint-disable no-unused-vars */
@@ -9,6 +10,7 @@ import { connect } from 'react-redux';
 import { Navbar, Button, Modal } from 'react-bootstrap';
 import axios from 'axios';
 import { addExpense } from '../../actions/expenseAction';
+import { getMemberInfo } from '../../actions/groupInfoAction';
 
 class GroupBar extends PureComponent {
   constructor(props) {
@@ -79,6 +81,12 @@ class GroupBar extends PureComponent {
     }
   };
 
+  leaveGroup = () => {
+    const data = { groupName: this.props.groupinfo.groupName };
+    this.props.getMemberInfo(data);
+    console.log('Can I leave', this.props.groupinfo.members);
+  };
+
   render() {
     return (
       <div>
@@ -142,6 +150,7 @@ GroupBar.propTypes = {
   groupinfo: PropTypes.string.isRequired,
   details: PropTypes.string.isRequired,
   addExpense: PropTypes.func.isRequired,
+  getMemberInfo: PropTypes.func.isRequired,
 
 };
 
@@ -150,4 +159,4 @@ const mapStateToProps = (state) => ({
   groupinfo: state.groupinformation,
 });
 
-export default connect(mapStateToProps, { addExpense })(GroupBar);
+export default connect(mapStateToProps, { addExpense, getMemberInfo })(GroupBar);

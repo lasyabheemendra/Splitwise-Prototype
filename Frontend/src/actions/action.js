@@ -8,10 +8,10 @@ export const login = (data) => (dispatch) => {
   axios.defaults.withCredentials = true;
   // make a post request with the user data
   axios.post('http://localhost:3001/user/login', data)
-    .then((response) => {
+    .then(async (response) => {
       if (response.status === 200) {
-        dispatch({ type: SW_LOGIN_SUCCESS, token: response.data.token });
-        dispatch({ type: USER_DETAILS_SUCCESS, info: response.data.info });
+        await dispatch({ type: USER_DETAILS_SUCCESS, info: response.data.info });
+        await dispatch({ type: SW_LOGIN_SUCCESS, token: response.data.token });
       }
     }).catch(() => {
       dispatch({ type: SW_LOGIN_ERROR, error: 'Incorrect user email or password.' });

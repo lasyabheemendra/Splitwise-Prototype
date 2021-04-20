@@ -1,3 +1,10 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
+/* eslint-disable no-sequences */
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable class-methods-use-this */
+/* eslint-disable react/jsx-no-undef */
+/* eslint-disable react/forbid-prop-types */
 /* eslint-disable no-console */
 /* eslint-disable react/no-unused-state */
 /* eslint-disable react/no-access-state-in-setstate */
@@ -13,10 +20,13 @@ import numeral from 'numeral';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import clone from 'lodash.clone';
+import { Link } from 'react-router-dom';
 import NavHomeBar from '../DashBoard/NavHomeBar';
 import { getMemberInfo } from '../../actions/groupInfoAction';
 import SideBar from '../SideBar/SideBar';
 import GroupBar from './groupBar';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 class groupPage extends PureComponent {
   constructor(props) {
@@ -89,7 +99,7 @@ class groupPage extends PureComponent {
       groupBalance: [],
     });
     const tempGroupBalanceShow = [];
-    const tempGroupBalance = this.props.groupinfo.members;
+    const tempGroupBalance = clone(this.props.groupinfo.members);
     for (let i = 0; i < tempGroupBalance.length; i += 1) {
       if (tempGroupBalance[i].balance < 0) {
         tempGroupBalance[i].balance = `owes ${this.props.details.currency}${numeral(Math.abs(tempGroupBalance[i].balance)).format('0.00')}`;
@@ -123,65 +133,111 @@ class groupPage extends PureComponent {
        });
    };
 
-   render() {
-     let redirectVar = null;
-     if (!localStorage.getItem('token')) {
-       redirectVar = <Redirect to="/" />;
-     }
-     console.log('groupBalance inside render', this.state.groupBalance);
-     return (
-       <div id="centre_container">
-         {redirectVar}
-         <NavHomeBar />
+  myFunction = () => {
+    document.getElementById('panel').style.display = 'block';
+  }
 
-         <Container>
-           <Row>
+  showExpense() {
+    return this.state.allExpenses.map((expense) => (
+      <div key={expense._ID}>
+        <div className="row pb-1 border-bottom">
+          <div className="col" style={{ paddingTop: '0.4rem' }}>
+            <p>{expense.paidOn}</p>
 
-             <Col xs={{ order: 'last' }} md={2} className="d-flex">
-               <br />
-               <div className="d-inline-flex p-2 bd-highlight">
-                 <div className="border border-dark" width="100%">
-                   <div className="bg-info border-right" id="sidebar-wrapper">
-                     <p>
-                       {' '}
-                       <b> GROUP BALANCES </b>
-                     </p>
-                   </div>
-                   <div>
-                     {this.state.groupBalance && this.state.groupBalance.map((data) => (
-                       <div key={data.name}>
-                         <p>
-                           <strong>
-                             <i>
-                               {' '}
-                               {data.name}
-                               {' '}
-                             </i>
-                             <sub>
-                               <span style={{ color: 'green' }}>{data.balance}</span>
-                             </sub>
-                           </strong>
-                         </p>
-                       </div>
-                     ))}
+          </div>
+          <div className="col" style={{ paddingTop: '0.2rem' }}>
+            <p>{expense.name}</p>
+          </div>
+          <div>
+            <p style={{ color: 'grey', size: '8px' }}>
+              {expense.paidBy}
+              --Paid
+            </p>
+          </div>
+          <div className="col" style={{ paddingTop: '0.4rem' }}>
+            <p>
+              {this.props.details.currency}
+              {expense.amount}
+            </p>
+          </div>
+          <div>
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={this.showNotes}
+            >
+              Note
+            </button>
+          </div>
+          <div id="panel">
+            <p>This panel contains a div element, which is hidden by default (display: none).</p>
+            <p>It is styled with CSS and we use JavaScript to show it (display: block).</p>
 
-                   </div>
-                 </div>
-               </div>
-             </Col>
-             <Col xs md={8} ms={4}>
-               <div>
-                 {this.state.message
+            <p>You will learn more about JavaScript in our JavaScript Tutorial.</p>
+          </div>
+        </div>
+      </div>
+    ));
+  }
+
+  render() {
+    let redirectVar = null;
+    if (!localStorage.getItem('token')) {
+      redirectVar = <Redirect to="/" />;
+    }
+    return (
+      <div id="centre_container">
+        {redirectVar}
+        <NavHomeBar />
+
+        <Container>
+          <Row>
+
+            <Col xs={{ order: 'last' }} md={2} className="d-flex">
+              <br />
+              <div className="d-inline-flex p-2 bd-highlight">
+                <div className="border border-dark" width="100%">
+                  <div className="bg-info border-right" id="sidebar-wrapper">
+                    <p>
+                      {' '}
+                      <b> GROUP BALANCES </b>
+                    </p>
+                  </div>
+                  <div>
+                    {this.state.groupBalance && this.state.groupBalance.map((data) => (
+                      <div key={data.name}>
+                        <p>
+                          <strong>
+                            <i>
+                              {' '}
+                              {data.name}
+                              {' '}
+                            </i>
+                            <sub>
+                              <span style={{ color: 'green' }}>{data.balance}</span>
+                            </sub>
+                          </strong>
+                        </p>
+                      </div>
+                    ))}
+
+                  </div>
+                </div>
+              </div>
+            </Col>
+            <Col xs md={8} ms={4}>
+              <div>
+                {this.state.message
                  && <b><span style={{ color: 'red' }}>{this.state.message}</span></b>}
-                 <GroupBar
-                   getExpenses={this.getExpenses}
-                   leaveGroup={this.leaveGroup}
-                   showButton={this.state.showButton}
-                 />
-                 {!this.state.acceptedMembers
+                <GroupBar
+                  getExpenses={this.getExpenses}
+                  leaveGroup={this.leaveGroup}
+                  showButton={this.state.showButton}
+                />
+                {!this.state.acceptedMembers
                 && <p><b><span style={{ color: 'green' }}> there are no accepted members in this Group to share expenses!</span></b></p>}
 
-                 {this.state.allExpenses.length === 0
+                {this.state.allExpenses.length === 0
                 && (
                 <div>
                   <p><b><span style={{ color: 'green' }}> You are all settled up in this group!</span></b></p>
@@ -189,37 +245,32 @@ class groupPage extends PureComponent {
                 </div>
                 )}
 
-                 {this.state.allExpenses.length !== 0
+                {this.state.allExpenses.length !== 0
                 && (
-                <BootstrapTable
-                  striped
-                  hover
-                  keyField="expense_name"
-                  data={this.state.allExpenses}
-                  columns={this.state.columns}
-                />
+                  this.showExpense()
                 )}
-               </div>
 
-             </Col>
-             <Col xs={{ order: 'first' }} md={2}>
-               {' '}
-               <div id="left _sidebar">
-                 <SideBar />
-               </div>
-             </Col>
-           </Row>
-           <Row />
-         </Container>
-       </div>
-     );
-   }
+              </div>
+
+            </Col>
+            <Col xs={{ order: 'first' }} md={2}>
+              {' '}
+              <div id="left _sidebar">
+                <SideBar />
+              </div>
+            </Col>
+          </Row>
+          <Row />
+        </Container>
+      </div>
+    );
+  }
 }
 
 groupPage.propTypes = {
   details: PropTypes.string.isRequired,
   getMemberInfo: PropTypes.func.isRequired,
-  groupinfo: PropTypes.string.isRequired,
+  groupinfo: PropTypes.object.isRequired,
 
 };
 

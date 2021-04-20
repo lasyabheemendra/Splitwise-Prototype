@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable react/no-unused-state */
 /* eslint-disable no-unused-vars */
 import React, { PureComponent } from 'react';
 import {
@@ -31,6 +33,197 @@ class DashBoard extends PureComponent {
       isOpen: false,
       userDetails: '',
     };
+  }
+
+  componentDidMount() {
+    this.getUserBalance();
+  }
+
+  getUserBalance = () => {
+    let tempfulldata = [];
+    let tempuserOwes = [];
+    let tempuserGetsback = [];
+    let tempowedUsers = [];
+    let tempgetsbackUsers = [];
+    let tempprintOwes = [];
+    let tempprintgetsback = [];
+    let tempgetsback = 0;
+    let tempowes = 0;
+    const datas = { groups: this.props.details.acceptedGroups };
+    axios.defaults.headers.common.authorization = localStorage.getItem('token');
+    axios.post('http://localhost:3001/dashboard/userbalance', datas)
+      .then((response) => {
+        console.log('dahboard response', response);
+        if (response.data === 'No active groups found for this user') {
+          this.setState({ message: 'You have no active groups!' });
+        } else {
+          tempfulldata = response.data;
+          console.log('tempfulldata', tempfulldata);
+
+          tempuserOwes = response.data.filter((item) => item.status === 'owes' && item.userName === this.props.details.username);
+          console.log('tempuserOwes', tempuserOwes);
+          tempuserGetsback = response.data.filter((item) => item.status === 'gets back' && item.userName === this.props.details.username);
+
+          tempowedUsers = response.data.filter((item) => item.status === 'owes' && item.userName !== this.props.details.username);
+          tempgetsbackUsers = response.data.filter((item) => item.status === 'gets back' && item.userName !== this.props.details.username);
+
+          if (tempuserGetsback.length > 0) {
+            // total amout user should get back
+            tempgetsback = _(tempuserGetsback)
+              .groupBy('userName')
+              .map((objs, key) => ({
+                userName: key,
+                balance: numeral((_.sumBy(objs, 'balance'))).format('00.00'),
+              }))
+              .value()[0].balance;
+          }
+
+          // total amout user owes to other members
+          if (tempuserOwes.length > 0) {
+            tempowes = _(tempuserOwes)
+              .groupBy('userName')
+              .map((objs, key) => ({
+                userName: key,
+                balance: numeral(Math.abs(_.sumBy(objs, 'balance'))).format('00.00'),
+              }))
+              .value()[0].balance;
+          }
+
+          if (tempuserGetsback.length > 0 && tempgetsbackUsers < 1) {
+            this.setState({ youAreOwed: true });
+            // members oweing to user
+            tempprintOwes = _(tempowedUsers)
+              .groupBy('userName')
+              .map((objs, key) => ({
+                userName: key,
+                balance: `Owes you ${this.props.details.currency}${numeral(Math.abs(_.sumBy(objs, 'balance'))).format('00.00')}`,
+              }))
+              .value();
+          } else if (tempuserGetsback.length > 0
+             && tempgetsbackUsers.length > 0) {
+            this.setState({ youAreOwed: true });
+            for (let i = 0; i < tempuserGetsback.length; i += 1) {
+              const name = tempuserGetsback[i].group_name;
+              // eslint-disable-next-line no-unused-vars
+              const gettersInGroup = tempgetsbackUsers.filter((item) => item.group_name === name);
+              const giversInGroup = tempowedUsers.filter((item) => item.group_name === name);
+
+              if (giversInGroup.length > 1) {
+                for (let j = 0; j < giversInGroup.length; j += 1) {
+                  tempprintOwes.push({
+                    userName: giversInGroup[j].userName,
+                    balance: tempuserGetsback[i].balance / giversInGroup.length,
+                    group: giversInGroup[j].group_name,
+                  });
+                }
+              } else if (giversInGroup.length === 1) {
+                tempprintOwes.push({
+                  userName: giversInGroup[0].userName,
+                  balance: tempuserGetsback[i].balance,
+                  group: giversInGroup[0].group_name,
+                });
+              }
+            }
+
+            // members oweing to user
+            tempprintOwes = _(tempprintOwes)
+              .groupBy('userName')
+              .map((objs, key) => ({
+                userName: key,
+                balance: `Owes you ${this.props.details.currency}${numeral(Math.abs(_.sumBy(objs, 'balance'))).format('00.00')}`,
+              }))
+              .value();
+          }
+          if (tempuserOwes.length > 0) {
+            console.log('tempuserOwes', tempuserOwes);
+            this.setState({ youOweto: true });
+            for (let i = 0; i < tempuserOwes.length; i += 1) {
+              const name = tempuserOwes[i].group_name;
+              const temp = tempgetsbackUsers.filter((item) => item.group_name === name);
+              console.log('tempgetsbackUsers temp', temp);
+              for (let j = 0; j < temp.length; j += 1) {
+                tempprintgetsback.push({
+                  userName: tempuserOwes[i].userName,
+                  balance: tempuserOwes[i].balance / temp.length,
+                  membername: temp[j].userName,
+                  group: temp[j].group_name,
+                });
+              }
+            }
+            console.log('tempprintgetsback before ', tempprintgetsback);
+            tempprintgetsback = _(tempprintgetsback)
+              .groupBy('membername')
+              .map((objs, key) => ({
+                userName: key,
+                balance: `${key} ${this.props.details.currency}${numeral(Math.abs(_.sumBy(objs, 'balance'))).format('00.00')}`,
+              }))
+              .value();
+            console.log('tempprintgetsback after ', tempprintgetsback);
+          }
+          this.setState({
+            memberData: tempfulldata,
+            printOwes: tempprintOwes,
+            printGetsback: tempprintgetsback,
+            you_are_owed: tempgetsback,
+            you_owe: tempowes,
+            totalBalance: tempgetsback - tempowes,
+          });
+        }
+      }).catch(() => {
+        console.log('user did not leave group');
+      });
+  }
+
+  showModal = () => {
+    let users = [];
+    this.setState({ isOpen: true });
+    const data = {
+      groups: this.props.details.acceptedGroups,
+      useremail: this.props.details.useremail,
+    };
+    axios.post('http://localhost:3001/dashboard/getrelatedusers', data)
+      .then((response) => {
+        users = response.data;
+        console.log('users', users);
+
+        this.setState({ isOpen: true, userDetails: users });
+      }).catch(() => {
+        console.log('No Related users found');
+      });
+  }
+
+  hideModal = () => {
+    this.setState({ isOpen: false });
+  };
+
+  userNameChange = (e) => {
+    this.setState({ selectedUser: e });
+  }
+
+  settleUp = () => {
+    console.log('printOwes', this.state.printOwes);
+    console.log('printGetsback', this.state.printGetsback);
+    console.log('this.state.selectedUser[0]', this.state.selectedUser[0]);
+    const others = [];
+    console.log('this.state.memberData', this.state.memberData);
+    const tempuserOwes = this.state.memberData
+      .filter((item) => item.userName === this.state.selectedUser[0]);
+    console.log('tempuserOwes', tempuserOwes);
+    const data = {
+      username: [this.props.details.username],
+      useremail: [this.props.details.useremail],
+      otherUser: tempuserOwes[0],
+    };
+    console.log('settle up data', data);
+    // make a post request with the user data
+    axios.post('http://localhost:3001/dashboard/settleup ', data)
+      .then((response) => {
+        console.log('settle up response', response.data);
+        this.hideModal();
+        this.getUserBalance();
+      }).catch(() => {
+        console.log('response is not recieved');
+      });
   }
 
   render() {
