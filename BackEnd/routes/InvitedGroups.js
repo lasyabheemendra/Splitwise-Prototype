@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 const express = require('express');
+const mongoose = require('mongoose');
 
 const router = express.Router();
 const { checkAuth } = require('../passport');
@@ -9,19 +10,26 @@ const Users = require('../Models/UsersModel');
 
 router.post('/invitedgroups', checkAuth, (req, res) => {
   console.log('Inside invited post req', req.body);
-  Groups.find({ members: { $elemMatch: { accepted: 0, email: req.body.email } } },
-    { groupName: 1, _id: 0 },
-    (error, user) => {
-      if (error) {
-        res.status(500).end('Error Occured');
-      }
-      if (user) {
-        console.log(user);
-        res.status(200).end(JSON.stringify(user));
-      } else {
-        res.status(400).end('No Pending Invitations');
-      }
-    });
+  Groups.find({
+    members: {
+      $elemMatch: {
+        accepted: 0,
+        userID: mongoose.Types.ObjectId(req.body.userID),
+      },
+    },
+  },
+  { groupName: 1, _id: 0 },
+  (error, user) => {
+    if (error) {
+      res.status(500).end('Error Occured');
+    }
+    if (user) {
+      console.log(user);
+      res.status(200).end(JSON.stringify(user));
+    } else {
+      res.status(400).end('No Pending Invitations');
+    }
+  });
 });
 
 router.post('/accept', checkAuth, (req, res) => {
@@ -29,7 +37,7 @@ router.post('/accept', checkAuth, (req, res) => {
   Groups.updateMany({
     groupName: { $in: req.body.groups },
   }, { $set: { 'members.$[elem].accepted': 1 }, $inc: { numberOfMembers: 1 } }, {
-    arrayFilters: [{ 'elem.email': req.body.useremail }],
+    arrayFilters: [{ 'elem.userID': mongoose.Types.ObjectId(req.body.userID) }],
   },
   (error, result) => {
     if (error) {
@@ -37,26 +45,31 @@ router.post('/accept', checkAuth, (req, res) => {
       res.status(500).end('Error Occured');
     }
     if (result.nModified !== 0) {
-      Users.updateOne({
-        useremail: req.body.useremail,
-      }, { $push: { acceptedGroups: { $each: req.body.groups } } }, (errors, results) => {
-        if (errors) {
-          res.writeHead(500, {
-            'Content-Type': 'text/plain',
-          });
-          res.end('Failed to Add Group to user list');
+      Groups.find({
+        members: {
+          $elemMatch: {
+            accepted: 1,
+            userID: mongoose.Types.ObjectId(req.body.userID),
+          },
+        },
+      },
+      { groupName: 1, _id: 0 },
+      (err1, groupnames) => {
+        if (err1) {
+          console.log('getdata err1', err1);
+          res.status(500).end('Error Occured');
+        }
+        console.log('groupnames', JSON.stringify(groupnames));
+        if (groupnames) {
+          console.log('groupnames groupnames groupnames', groupnames);
+          const grouplist = groupnames.map((a) => a.groupName);
+          console.log('groupnames result', grouplist);
+          const results = { groups: grouplist };
+          console.log('new API result', JSON.stringify(results));
+          res.status(200).end(JSON.stringify(results));
         } else {
-          Users.findOne({ useremail: req.body.useremail },
-            (err1, user) => {
-              if (err1) {
-                res.status(500).end('Error Occured while fetching user details');
-              }
-              console.log(JSON.stringify(user));
-              res.writeHead(200, {
-                'Content-Type': 'text/plain',
-              });
-              res.status(200).end(JSON.stringify(user));
-            });
+          console.log('groupnames result is emplty', groupnames);
+          res.end();
         }
       });
     } else {

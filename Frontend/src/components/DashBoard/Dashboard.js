@@ -15,6 +15,7 @@ import { connect } from 'react-redux';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import NavHomeBar from './NavHomeBar';
 import SideBar from '../SideBar/SideBar';
+import { getDashboardInfo } from '../../actions/dashboard';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../../App.css';
 
@@ -36,7 +37,20 @@ class DashBoard extends PureComponent {
   }
 
   componentDidMount() {
-    this.getUserBalance();
+    this.getData();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.mygroups.acceptedGroups !== this.props.mygroups.acceptedGroups) {
+      this.getUserBalance();
+    }
+  }
+
+  getData = async () => {
+    const data = { userID: localStorage.getItem('userID') };
+    axios.defaults.headers.common.authorization = localStorage.getItem('token');
+    await this.props.getDashboardInfo(data);
+    await this.getUserBalance();
   }
 
   getUserBalance = () => {
@@ -49,7 +63,9 @@ class DashBoard extends PureComponent {
     let tempprintgetsback = [];
     let tempgetsback = 0;
     let tempowes = 0;
-    const datas = { groups: this.props.details.acceptedGroups };
+    console.log('dashboard directly 2');
+    const datas = { groups: this.props.mygroups.acceptedGroups };
+    console.log('getUserBalance datas 3', datas);
     axios.defaults.headers.common.authorization = localStorage.getItem('token');
     axios.post('http://localhost:3001/dashboard/userbalance', datas)
       .then((response) => {
@@ -57,6 +73,7 @@ class DashBoard extends PureComponent {
         if (response.data === 'No active groups found for this user') {
           this.setState({ message: 'You have no active groups!' });
         } else {
+          this.setState({ message: '' });
           tempfulldata = response.data;
 
           tempuserOwes = response.data.filter((item) => item.status === 'owes' && item.userName === this.props.details.username);
@@ -188,7 +205,7 @@ class DashBoard extends PureComponent {
     let users = [];
     this.setState({ isOpen: true });
     const data = {
-      groups: this.props.details.acceptedGroups,
+      groups: this.props.mygroups.acceptedGroups,
       useremail: this.props.details.useremail,
     };
     axios.post('http://localhost:3001/dashboard/getrelatedusers', data)
@@ -381,11 +398,14 @@ class DashBoard extends PureComponent {
 }
 DashBoard.propTypes = {
   details: PropTypes.string.isRequired,
+  mygroups: PropTypes.string.isRequired,
+  getDashboardInfo: PropTypes.func.isRequired,
 
 };
 
 const mapStateToProps = (state) => ({
   details: state.information,
+  mygroups: state.mygroups,
 });
 
-export default connect(mapStateToProps, null)(DashBoard);
+export default connect(mapStateToProps, { getDashboardInfo })(DashBoard);

@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 const express = require('express');
@@ -12,16 +13,15 @@ router.post('/createnew', checkAuth, (req, res) => {
   console.log('Req Body : ', req.body);
   console.log('Req Body : ', req.body.user);
   const memberdata = [{
-    name: req.body.user[0].username,
-    email: req.body.user[0].useremail,
+    userID: req.body.user[0].userID,
     accepted: 1,
     balance: 0,
     status: 'NA',
   }];
+  console.log('memberdata', memberdata);
   for (let i = 1; i < req.body.user.length; i += 1) {
     memberdata.push({
-      name: req.body.user[i].username,
-      email: req.body.user[i].useremail,
+      userID: req.body.user[i].userID,
       accepted: 0,
       balance: 0,
       status: 'NA',
@@ -50,28 +50,23 @@ router.post('/createnew', checkAuth, (req, res) => {
           });
           res.end('Failed to Create Group');
         } else {
-          Users.updateOne({
-            useremail: req.body.user[0].useremail,
-          }, { $push: { acceptedGroups: req.body.groupname } }, (errors, results) => {
-            if (errors) {
-              res.writeHead(500, {
-                'Content-Type': 'text/plain',
-              });
-              res.end('Failed to Add Group to user list');
-            } else {
-              Users.findOne({ useremail: req.body.user[0].useremail },
-                (err1, user) => {
-                  if (err1) {
-                    res.status(500).end('Error Occured while fetching user details');
-                  }
-                  console.log(JSON.stringify(user));
-                  res.writeHead(200, {
-                    'Content-Type': 'text/plain',
-                  });
-                  res.status(200).end(JSON.stringify(user));
-                });
-            }
-          });
+          console.log('post creation', data);
+          console.log('req.body.user[0].userID', req.body.user[0].userID);
+          Groups.find({ members: { $elemMatch: { accepted: 1, userID: req.body.user[0].userID } } },
+            { groupName: 1, _id: 0 },
+            (err1, groupnames) => {
+              if (err1) {
+                res.status(500).end('Error Occured');
+              }
+              if (groupnames) {
+                const grouplist = [];
+                grouplist.push(groupnames.map((name) => name.groupName));
+                const returngroups = { groups: grouplist[0] };
+                res.status(200).end(JSON.stringify(returngroups));
+              } else {
+                res.status(401).end('Invalid Credentials');
+              }
+            });
         }
       });
     }

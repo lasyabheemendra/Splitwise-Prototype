@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 
+const Users = require('./UsersModel');
+
 const { Schema } = mongoose;
 
 const memberSchema = new Schema({
-  name: { type: String },
-  email: { type: String },
+  userID: { type: Schema.Types.ObjectId, ref: Users },
   accepted: { type: Number, default: 0 },
   balance: { type: Number, default: 0 },
   status: { type: String, default: 'NA' },
@@ -14,12 +15,10 @@ const memberSchema = new Schema({
 });
 
 const expenseSchema = new Schema({
-
-  name: { type: String },
-  paidBy: { type: String },
+  paidBy: { type: Schema.Types.ObjectId, ref: Users },
   paidOn: { type: String },
   amount: { type: Number, default: 0 },
-  notes: [{ noteby: String, noteText: String }],
+  notes: [{ noteby: { type: Schema.Types.ObjectId, ref: Users }, noteText: { type: String } }],
 
 }, {
   versionKey: false,

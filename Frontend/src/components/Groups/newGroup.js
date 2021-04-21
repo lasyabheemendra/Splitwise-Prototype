@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable linebreak-style */
 /* eslint-disable react/forbid-prop-types */
@@ -77,17 +78,20 @@ class group extends PureComponent {
 
   member1Changehandler = (selectedValue) => {
     if (selectedValue.length !== 0) {
+      console.log('selectedValue', selectedValue);
       const newList = this.state.userDetails
         .filter((item) => item.useremail !== selectedValue[0].useremail);
       this.setState({
         memberName1: selectedValue[0].username,
         memberEmail1: selectedValue[0].useremail,
+        memberID1: selectedValue[0]._id,
         userDetails: newList,
       });
     } else {
       this.setState({
         memberName1: '',
         memberEmail1: '',
+        memberID1: '',
       });
     }
   }
@@ -105,12 +109,14 @@ class group extends PureComponent {
       this.setState({
         memberName2: selectedValue[0].username,
         memberEmail2: selectedValue[0].useremail,
+        memberID2: selectedValue[0]._id,
         userDetails: newList,
       });
     } else {
       this.setState({
         memberName2: '',
         memberEmail2: '',
+        memberID2: '',
       });
     }
   }
@@ -128,12 +134,14 @@ class group extends PureComponent {
       this.setState({
         memberName3: selectedValue[0].username,
         memberEmail3: selectedValue[0].useremail,
+        memberID3: selectedValue[0]._id,
         userDetails: newList,
       });
     } else {
       this.setState({
         memberName3: '',
         memberEmail3: '',
+        memberID3: '',
       });
     }
   }
@@ -151,12 +159,14 @@ class group extends PureComponent {
       this.setState({
         memberName4: selectedValue[0].username,
         memberEmail4: selectedValue[0].usermail,
+        memberID4: selectedValue[0]._id,
         userDetails: newList,
       });
     } else {
       this.setState({
         memberName4: '',
         memberEmail4: '',
+        memberID4: '',
       });
     }
   }
@@ -215,22 +225,39 @@ class group extends PureComponent {
     };
     const count = 1;
     if (this.state.memberEmail1) {
-      data.user.push({ username: this.state.memberName1, useremail: this.state.memberEmail1 });
+      data.user.push({
+        username: this.state.memberName1,
+        useremail: this.state.memberEmail1,
+        userID: this.state.memberID1,
+      });
     }
     if (this.state.memberEmail2) {
-      data.user.push({ username: this.state.memberName2, useremail: this.state.memberEmail2 });
+      data.user.push({
+        username: this.state.memberName2,
+        useremail: this.state.memberEmail2,
+        userID: this.state.memberID2,
+      });
     }
     if (this.state.memberEmail3) {
-      data.user.push({ username: this.state.memberName3, useremail: this.state.memberEmail3 });
+      data.user.push({
+        username: this.state.memberName3,
+        useremail: this.state.memberEmail3,
+        userID: this.state.memberID3,
+      });
     }
     if (this.state.memberEmail4) {
-      data.user.push({ username: this.state.memberName4, useremail: this.state.memberEmail4 });
+      data.user.push({
+        username: this.state.memberName4,
+        useremail: this.state.memberEmail4,
+        userID: this.state.memberID4,
+      });
     }
     data.count = count;
     if (this.verifyEmailID(data)) {
       data.user.unshift({
         username: this.props.details.username,
         useremail: this.props.details.useremail,
+        userID: this.props.details.userID,
       });
       this.props.groupCreate(data);
     } else {

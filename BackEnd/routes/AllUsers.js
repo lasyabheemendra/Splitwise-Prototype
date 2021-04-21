@@ -7,8 +7,7 @@ const Users = require('../Models/UsersModel');
 
 router.post('/all', checkAuth, (req, res) => {
   console.log('Inside user update Request');
-  console.log('Req Body : ', req);
-  Users.find({ useremail: { $ne: req.body.email } }, { username: 1, useremail: 1, _id: 0 },
+  Users.find({ useremail: { $ne: req.body.email } }, { username: 1, useremail: 1, _id: 1 },
     (error, user) => {
       if (error) {
         console.log(error);

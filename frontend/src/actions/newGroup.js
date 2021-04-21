@@ -1,6 +1,6 @@
 import axios from 'axios';
 import {
-  NEW_GROUP_SUCCESS, NEW_GROUP_ERROR, USER_DETAILS_SUCCESS, NEW_GROUP_RESET,
+  NEW_GROUP_SUCCESS, NEW_GROUP_ERROR, NEW_GROUP_RESET, USER_GROUP_SUCCESS,
 } from '../constants/action_type';
 
 export const groupCreate = (data) => (dispatch) => {
@@ -10,8 +10,8 @@ export const groupCreate = (data) => (dispatch) => {
   axios.post('http://localhost:3001/group/createnew', data)
     .then((response) => {
       if (response.status === 200) {
-        dispatch({ type: USER_DETAILS_SUCCESS, info: response.data });
         dispatch({ type: NEW_GROUP_SUCCESS });
+        dispatch({ type: USER_GROUP_SUCCESS, groups: response.data.groups });
       }
     }).catch(() => {
       dispatch({ type: NEW_GROUP_ERROR, error: 'Please Enter unique Group Name.' });

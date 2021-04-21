@@ -31,6 +31,7 @@ router.post('/signup', (req, res) => {
         username: req.body.username,
         password: md5(req.body.password),
       }, (err, data) => {
+        console.log('signup data', data);
         if (err) {
           res.writeHead(500, {
             'Content-Type': 'text/plain',
@@ -47,7 +48,7 @@ router.post('/signup', (req, res) => {
           const token = jwt.sign(payload, secret, {
             expiresIn: 1008000,
           });
-          const results = { info: data, token: `JWT ${token}` };
+          const results = { info: data, token: `JWT ${token}`, groups: [] };
           res.status(200).end(JSON.stringify(results));
         }
       });

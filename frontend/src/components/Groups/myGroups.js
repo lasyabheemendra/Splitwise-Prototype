@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable react/no-unused-prop-types */
 /* eslint-disable react/no-access-state-in-setstate */
 import React, { PureComponent } from 'react';
@@ -32,14 +33,14 @@ class mygroups extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.details.acceptedGroups !== this.props.details.acceptedGroups) {
+    if (prevProps.myacceptedgroups.acceptedGroups !== this.props.myacceptedgroups.acceptedGroups) {
       this.getMygroups();
     }
   }
 
   getInvitedgroups = () => {
     axios.defaults.headers.common.authorization = localStorage.getItem('token');
-    const data = { email: this.props.details.useremail };
+    const data = { userID: this.props.details.userID };
     axios.post('http://localhost:3001/mygroups/invitedgroups', data)
       .then((response) => {
         for (let i = 0; i < response.data.length; i += 1) {
@@ -67,7 +68,7 @@ class mygroups extends PureComponent {
   }
 
    getMygroups = () => {
-     this.setState({ allGroups: this.props.details.acceptedGroups });
+     this.setState({ allGroups: this.props.myacceptedgroups.acceptedGroups });
    };
 
    editSearchTerm = (e) => {
@@ -79,7 +80,7 @@ class mygroups extends PureComponent {
     onAccept = async () => {
     // By calling the belowe method will get the selected values programatically
       const data = {};
-      data.useremail = this.props.details.useremail;
+      data.userID = this.props.details.userID;
       data.groups = this.multiselectRef.current.getSelectedItems();
 
       await this.props.acceptGroup(data);
@@ -176,11 +177,13 @@ mygroups.propTypes = {
   details: PropTypes.string.isRequired,
   acceptGroup: PropTypes.func.isRequired,
   acceptederror: PropTypes.bool.isRequired,
+  myacceptedgroups: PropTypes.string.isRequired,
 
 };
 
 const mapStateToProps = (state) => ({
   details: state.information,
   acceptederror: state.groupdetails.acceptederror,
+  myacceptedgroups: state.mygroups,
 });
 export default connect(mapStateToProps, { acceptGroup })(mygroups);

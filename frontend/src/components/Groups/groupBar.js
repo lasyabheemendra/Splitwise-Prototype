@@ -72,7 +72,7 @@ class GroupBar extends PureComponent {
         NOM: this.props.groupinfo.numberOfMembers,
         description: this.state.description,
         amount: this.state.amount,
-        paidby: this.props.details.username,
+        paidby: this.props.details.userID,
         paidbyemail: this.props.details.useremail,
       };
       this.props.addExpense(data);

@@ -1,13 +1,59 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 const express = require('express');
+const { ObjectID } = require('mongodb');
+const mongoose = require('mongoose');
 
 const router = express.Router();
 const { checkAuth } = require('../passport');
 const Groups = require('../Models/GroupsModel');
 const Users = require('../Models/UsersModel');
 
+router.post('/getdata', checkAuth, (req, res) => {
+  console.log('getdata ', req.body);
+  Users.findOne({ _id: mongoose.Types.ObjectId(req.body.userID) },
+    (error, user) => {
+      if (error) {
+        res.status(500).end('Error Occured');
+      }
+      console.log('user._id', user._id);
+      if (user) {
+        Groups.find({
+          members: {
+            $elemMatch: {
+              accepted: 1,
+              userID: mongoose.Types.ObjectId(user._id),
+            },
+          },
+        },
+        { groupName: 1, _id: 0 },
+        (err1, groupnames) => {
+          if (err1) {
+            console.log('getdata err1', err1);
+            res.status(500).end('Error Occured');
+          }
+          console.log('groupnames', JSON.stringify(groupnames));
+          if (groupnames) {
+            console.log('groupnames groupnames groupnames', groupnames);
+            const grouplist = groupnames.map((a) => a.groupName);
+            console.log('groupnames result', grouplist);
+            const result = { info: user, groups: grouplist };
+            console.log('new API result', JSON.stringify(result));
+            res.status(200).end(JSON.stringify(result));
+          } else {
+            console.log('groupnames result is emplty', groupnames);
+            res.end();
+          }
+        });
+      } else {
+        res.status(401).end('No user Data found');
+      }
+    });
+});
+
 router.post('/userbalance', checkAuth, (req, res) => {
+  console.log('userbalance', req.body);
   Groups.find({ groupName: { $in: req.body.groups } },
     {
       _id: 0,

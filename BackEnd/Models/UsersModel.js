@@ -11,8 +11,6 @@ const usersSchema = new Schema({
   timezone: { type: String, default: '-08:00' },
   language: { type: String, default: 'English' },
   image: { type: String, default: '' },
-  invitedGroups: [{ type: String }],
-  acceptedGroups: [{ type: String }],
 },
 {
   versionKey: false,

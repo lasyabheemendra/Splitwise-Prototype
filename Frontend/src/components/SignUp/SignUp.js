@@ -1,4 +1,5 @@
 /* eslint-disable linebreak-style */
+/* eslint-disable react/forbid-prop-types */
 /* eslint-disable camelcase */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-console */
@@ -6,6 +7,7 @@ import React, { Component } from 'react';
 import { Redirect } from 'react-router';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import jwt_decode from 'jwt-decode';
 import signup from '../../actions/signupAction';
 import NavigationBar from '../LandingPage/NavigationBar';
 import '../../App.css';
@@ -50,6 +52,8 @@ class SignUp extends Component {
       let redirectVar = null;
       if (this.props.token.length > 0) {
         localStorage.setItem('token', this.props.token);
+        const decoded = jwt_decode(this.props.token.split(' ')[1]);
+        localStorage.setItem('userID', decoded._id);
         redirectVar = <Redirect to="/dashboard" />;
       }
       return (
@@ -117,13 +121,11 @@ SignUp.propTypes = {
 
 };
 
-function mapStateToProps(state) {
-  const { loggedIn, error, token } = state.validation;
-  return {
-    loggedIn,
-    error,
-    token,
-  };
-}
+const mapStateToProps = (state) => ({
+  details: state.information,
+  loggedIn: state.validation.loggedIn,
+  error: state.validation.error,
+  token: state.validation.token,
+});
 // export Login Component
 export default connect(mapStateToProps, { signup })(SignUp);

@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 const express = require('express');
+const mongoose = require('mongoose');
 
 const router = express.Router();
 const { checkAuth } = require('../passport');
@@ -13,7 +14,7 @@ router.post('/addexpense', checkAuth, (req, res) => {
     name: req.body.description,
     amount: Number(req.body.amount),
     paidOn: new Date().toDateString(),
-    paidBy: req.body.paidby,
+    paidBy: mongoose.Types.ObjectId(req.body.userID),
   }];
   console.log('expenseData', expenseData);
   Groups.updateOne({
@@ -45,16 +46,17 @@ router.post('/addexpense', checkAuth, (req, res) => {
           if (err) {
             console.log(err);
           }
+          console.log('addexpense group find group', group);
           const results = { info: group[0].members };
           console.log('get members', JSON.stringify(group[0].members));
           for (let i = 0; i < group[0].members.length; i += 1) {
-            if (group[0].members[i].email === req.body.paidbyemail) {
-              console.log('paidbyemail', group[0].members[i].email);
+            if (group[0].members[i].userID === mongoose.Types.ObjectId(req.body.userID)) {
+              console.log('paidbyemail', group[0].members[i].userID);
               console.log('paidbyemail balance', group[0].members[i].balance);
               Groups.updateOne({
                 groupName: req.body.groupname,
               }, { $set: { 'members.$[elem].balance': group[0].members[i].balance + (req.body.amount - share) } }, {
-                arrayFilters: [{ 'elem.email': req.body.paidbyemail }],
+                arrayFilters: [{ 'elem.userID': mongoose.Types.ObjectId(req.body.userID) }],
               },
               (err1, paidmember) => {
                 if (err1) {
@@ -62,14 +64,14 @@ router.post('/addexpense', checkAuth, (req, res) => {
                   res.status(500).end('Error Occured while updating paid member balance');
                 }
               });
-            } else if (group[0].members[i].email !== req.body.paidbyemail) {
-              console.log('NOT paidbyemail--', group[0].members[i].email);
+            } else if (group[0].members[i].userID !== mongoose.Types.ObjectId(req.body.userID)) {
+              console.log('NOT paidbyemail--', group[0].members[i].userID);
               console.log('NOT paidbyemail balance', group[0].members[i].balance);
               console.log('balance expected', group[0].members[i].balance - share);
               Groups.updateOne({
                 groupName: req.body.groupname,
               }, { $set: { 'members.$[elem].balance': group[0].members[i].balance - share } }, {
-                arrayFilters: [{ 'elem.email': group[0].members[i].email }],
+                arrayFilters: [{ 'elem.userID': group[0].members[i].userID }],
               },
               (err2, notpaidmember) => {
                 if (err2) {
@@ -101,31 +103,47 @@ router.post('/addexpense', checkAuth, (req, res) => {
                   res.status(500).end('Error Occured while updating gets back status');
                 }
 
-                Groups.find({ groupName: req.body.groupname },
+                Groups.aggregate([
+                  { $unwind: '$members' },
                   {
-                    groupName: 1,
-                    numberOfMembers: 1,
-                    members: {
-                      $filter: {
-                        input: '$members',
-                        as: 'members',
-                        cond: {
-                          $and: [
-                            { $eq: ['$$members.accepted', 1] },
-                          ],
-                        },
+                    $lookup: {
+                      from: 'users',
+                      localField: 'members.userID',
+                      foreignField: '_id',
+                      as: 'members.userInfo',
+                    },
+                  },
+                  { $addFields: { 'members.userInfo': '$members.userInfo.username' } },
+                  { $unwind: '$members.userInfo' },
+                  {
+                    $group: {
+                      _id: '$_id',
+                      root: { $mergeObjects: '$$ROOT' },
+                      members: { $push: '$members' },
+                    },
+                  },
+                  {
+                    $replaceRoot: {
+                      newRoot: {
+                        $mergeObjects: ['$root', '$$ROOT'],
                       },
                     },
-                    expenses: 1,
                   },
-                  (err2, groups) => {
-                    if (err) {
-                      console.log(err);
-                    }
-                    const upadtedresult = { info: groups[0] };
-                    console.log('add expense result', JSON.stringify(upadtedresult));
-                    res.status(200).end(JSON.stringify(upadtedresult));
-                  });
+                  {
+                    $project: {
+                      root: 0,
+                    },
+                  },
+                ],
+                (err2, groups) => {
+                  if (err) {
+                    console.log(err);
+                  }
+                  console.log('aggregate groups', groups);
+                  const upadtedresult = { info: groups[2] };
+                  console.log('add expense result', JSON.stringify(upadtedresult));
+                  res.status(200).end(JSON.stringify(upadtedresult));
+                });
               });
             });
           }

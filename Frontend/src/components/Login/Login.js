@@ -1,10 +1,11 @@
-/* eslint-disable linebreak-style */
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable camelcase */
 import React, { Component } from 'react';
 import '../../App.css';
 import PropTypes from 'prop-types';
 import { Redirect } from 'react-router';
 import { connect } from 'react-redux';
+import jwt_decode from 'jwt-decode';
 import { login } from '../../actions/action';
 import NavigationBar from '../LandingPage/NavigationBar';
 
@@ -40,6 +41,8 @@ class Login extends Component {
     let redirectVar = null;
     if (this.props.token.length > 0) {
       localStorage.setItem('token', this.props.token);
+      const decoded = jwt_decode(this.props.token.split(' ')[1]);
+      localStorage.setItem('userID', decoded._id);
       redirectVar = <Redirect to="/dashboard" />;
     }
     return (
@@ -96,16 +99,13 @@ Login.propTypes = {
   login: PropTypes.func.isRequired,
   token: PropTypes.string.isRequired,
   error: PropTypes.string.isRequired,
-
 };
 
-function mapStateToProps(state) {
-  const { loggedIn, error, token } = state.validation;
-  return {
-    loggedIn,
-    error,
-    token,
-  };
-}
+const mapStateToProps = (state) => ({
+  details: state.information,
+  loggedIn: state.validation.loggedIn,
+  error: state.validation.error,
+  token: state.validation.token,
+});
 
 export default connect(mapStateToProps, { login })(Login);
