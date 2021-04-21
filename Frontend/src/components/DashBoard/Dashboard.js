@@ -58,10 +58,8 @@ class DashBoard extends PureComponent {
           this.setState({ message: 'You have no active groups!' });
         } else {
           tempfulldata = response.data;
-          console.log('tempfulldata', tempfulldata);
 
           tempuserOwes = response.data.filter((item) => item.status === 'owes' && item.userName === this.props.details.username);
-          console.log('tempuserOwes', tempuserOwes);
           tempuserGetsback = response.data.filter((item) => item.status === 'gets back' && item.userName === this.props.details.username);
 
           tempowedUsers = response.data.filter((item) => item.status === 'owes' && item.userName !== this.props.details.username);
@@ -139,15 +137,27 @@ class DashBoard extends PureComponent {
             this.setState({ youOweto: true });
             for (let i = 0; i < tempuserOwes.length; i += 1) {
               const name = tempuserOwes[i].group_name;
+              console.log('for group name', name);
               const temp = tempgetsbackUsers.filter((item) => item.group_name === name);
               console.log('tempgetsbackUsers temp', temp);
+              const temp1 = tempowedUsers.filter((item) => item.group_name === name);
+              console.log('tempowedUsers temp1', temp1);
               for (let j = 0; j < temp.length; j += 1) {
-                tempprintgetsback.push({
-                  userName: tempuserOwes[i].userName,
-                  balance: tempuserOwes[i].balance / temp.length,
-                  membername: temp[j].userName,
-                  group: temp[j].group_name,
-                });
+                if (temp1.length > 0) {
+                  tempprintgetsback.push({
+                    userName: tempuserOwes[i].userName,
+                    balance: tempuserOwes[i].balance / temp.length,
+                    membername: temp[j].userName,
+                    group: temp[j].group_name,
+                  });
+                } else {
+                  tempprintgetsback.push({
+                    userName: tempuserOwes[i].userName,
+                    balance: -tempgetsbackUsers[j].balance,
+                    membername: temp[j].userName,
+                    group: temp[j].group_name,
+                  });
+                }
               }
             }
             console.log('tempprintgetsback before ', tempprintgetsback);

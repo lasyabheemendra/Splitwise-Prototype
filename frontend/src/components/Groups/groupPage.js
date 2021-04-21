@@ -53,6 +53,8 @@ class groupPage extends PureComponent {
       redirect: '',
       showButton: true,
       message: '',
+      shownote: false,
+      showid: '',
     };
   }
 
@@ -133,13 +135,15 @@ class groupPage extends PureComponent {
        });
    };
 
-  myFunction = () => {
-    document.getElementById('panel').style.display = 'block';
+  showNotes = (id) => {
+    console.log('id----', id);
+    // this.setState({ shownote: !this.state.shownote });
+    this.setState({ showid: id });
   }
 
   showExpense() {
     return this.state.allExpenses.map((expense) => (
-      <div key={expense._ID}>
+      <div key={expense._id}>
         <div className="row pb-1 border-bottom">
           <div className="col" style={{ paddingTop: '0.4rem' }}>
             <p>{expense.paidOn}</p>
@@ -164,18 +168,23 @@ class groupPage extends PureComponent {
             <button
               type="button"
               className="btn btn-secondary btn-sm"
-              onClick={this.showNotes}
+              onClick={() => this.showNotes((expense._id))}
             >
               Note
             </button>
           </div>
-          <div id="panel">
-            <p>This panel contains a div element, which is hidden by default (display: none).</p>
-            <p>It is styled with CSS and we use JavaScript to show it (display: block).</p>
 
-            <p>You will learn more about JavaScript in our JavaScript Tutorial.</p>
-          </div>
         </div>
+        { this.state.showid === expense._id
+         && (
+         <div>
+           <h6>
+             {' '}
+             {expense.name}
+           </h6>
+         </div>
+         )}
+
       </div>
     ));
   }
