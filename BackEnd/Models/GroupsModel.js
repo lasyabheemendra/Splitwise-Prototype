@@ -15,7 +15,8 @@ const memberSchema = new Schema({
 });
 
 const expenseSchema = new Schema({
-  paidBy: { type: Schema.Types.ObjectId, ref: Users },
+  name: { type: String },
+  paidBy: [{ type: Schema.Types.ObjectId, ref: Users }],
   paidOn: { type: String },
   amount: { type: Number, default: 0 },
   notes: [{ noteby: { type: Schema.Types.ObjectId, ref: Users }, noteText: { type: String } }],

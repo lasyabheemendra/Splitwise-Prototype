@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 const express = require('express');
 const mongoose = require('mongoose');
@@ -6,7 +5,6 @@ const mongoose = require('mongoose');
 const router = express.Router();
 const { checkAuth } = require('../passport');
 const Groups = require('../Models/GroupsModel');
-const Users = require('../Models/UsersModel');
 
 router.post('/addexpense', checkAuth, (req, res) => {
   console.log('Inside addexpense post req', req.body);
@@ -14,7 +12,7 @@ router.post('/addexpense', checkAuth, (req, res) => {
     name: req.body.description,
     amount: Number(req.body.amount),
     paidOn: new Date().toDateString(),
-    paidBy: mongoose.Types.ObjectId(req.body.userID),
+    paidBy: req.body.paidby,
   }];
   console.log('expenseData', expenseData);
   Groups.updateOne({
@@ -46,34 +44,34 @@ router.post('/addexpense', checkAuth, (req, res) => {
           if (err) {
             console.log(err);
           }
-          console.log('addexpense group find group', group);
-          const results = { info: group[0].members };
-          console.log('get members', JSON.stringify(group[0].members));
+          // console.log('get members', JSON.stringify(group[0].members));
           for (let i = 0; i < group[0].members.length; i += 1) {
-            if (group[0].members[i].userID === mongoose.Types.ObjectId(req.body.userID)) {
+            console.log('group[0].members[i].userID', group[0].members[i].userID.toString());
+            console.log('req.body.paidby', req.body.paidby);
+            if (group[0].members[i].userID.toString() === req.body.paidby) {
               console.log('paidbyemail', group[0].members[i].userID);
               console.log('paidbyemail balance', group[0].members[i].balance);
               Groups.updateOne({
                 groupName: req.body.groupname,
               }, { $set: { 'members.$[elem].balance': group[0].members[i].balance + (req.body.amount - share) } }, {
-                arrayFilters: [{ 'elem.userID': mongoose.Types.ObjectId(req.body.userID) }],
+                arrayFilters: [{ 'elem.userID': req.body.paidby }],
               },
-              (err1, paidmember) => {
+              (err1) => {
                 if (err1) {
                   console.log(err1);
                   res.status(500).end('Error Occured while updating paid member balance');
                 }
               });
-            } else if (group[0].members[i].userID !== mongoose.Types.ObjectId(req.body.userID)) {
-              console.log('NOT paidbyemail--', group[0].members[i].userID);
-              console.log('NOT paidbyemail balance', group[0].members[i].balance);
-              console.log('balance expected', group[0].members[i].balance - share);
+            } else if (group[0].members[i].userID !== req.body.paidby) {
+              // console.log('NOT paidbyemail--', group[0].members[i].userID);
+              // console.log('NOT paidbyemail balance', group[0].members[i].balance);
+              // console.log('balance expected', group[0].members[i].balance - share);
               Groups.updateOne({
                 groupName: req.body.groupname,
               }, { $set: { 'members.$[elem].balance': group[0].members[i].balance - share } }, {
                 arrayFilters: [{ 'elem.userID': group[0].members[i].userID }],
               },
-              (err2, notpaidmember) => {
+              (err2) => {
                 if (err2) {
                   console.log(err2);
                   res.status(500).end('Error Occured while updating not paid member balance');
@@ -87,7 +85,7 @@ router.post('/addexpense', checkAuth, (req, res) => {
             }, { $set: { 'members.$[elem].status': 'owes' } }, {
               arrayFilters: [{ 'elem.balance': { $lt: 0 } }],
             },
-            (err3, paidmember) => {
+            (err3) => {
               if (err3) {
                 console.log(err3);
                 res.status(500).end('Error Occured while updating owes status');
@@ -97,59 +95,66 @@ router.post('/addexpense', checkAuth, (req, res) => {
               }, { $set: { 'members.$[elem].status': 'gets back' } }, {
                 arrayFilters: [{ 'elem.balance': { $gt: 0 } }],
               },
-              (err4, notpaidmember) => {
+              (err4) => {
                 if (err4) {
                   console.log(err4);
                   res.status(500).end('Error Occured while updating gets back status');
                 }
 
-                Groups.aggregate([
-                  { $unwind: '$members' },
-                  {
-                    $lookup: {
-                      from: 'users',
-                      localField: 'members.userID',
-                      foreignField: '_id',
-                      as: 'members.userInfo',
-                    },
-                  },
-                  { $addFields: { 'members.userInfo': '$members.userInfo.username' } },
-                  { $unwind: '$members.userInfo' },
-                  {
-                    $group: {
-                      _id: '$_id',
-                      root: { $mergeObjects: '$$ROOT' },
-                      members: { $push: '$members' },
-                    },
-                  },
-                  {
-                    $replaceRoot: {
-                      newRoot: {
-                        $mergeObjects: ['$root', '$$ROOT'],
-                      },
-                    },
-                  },
-                  {
-                    $project: {
-                      root: 0,
-                    },
-                  },
-                ],
-                (err2, groups) => {
-                  if (err) {
-                    console.log(err);
-                  }
-                  console.log('aggregate groups', groups);
-                  const upadtedresult = { info: groups[2] };
-                  console.log('add expense result', JSON.stringify(upadtedresult));
-                  res.status(200).end(JSON.stringify(upadtedresult));
-                });
+                Groups.findOne({ groupName: req.body.groupname })
+                  .populate('members.userID', 'username')
+                  .populate({ path: 'expenses.paidBy', select: 'username -_id' })
+                  .populate({ path: 'expenses.notes.noteby', select: 'username -_id' })
+                  .exec((err2, groups) => {
+                    if (err2) {
+                      console.log(err2);
+                    }
+                    const expenseresults = { info: groups };
+                    console.log('aggregate groups', JSON.stringify(expenseresults));
+                    res.status(200).end(JSON.stringify(expenseresults));
+                    res.end();
+                  });
               });
             });
           }
         });
     } else {
       res.status(400).end('No accepted groups modified');
+    }
+  });
+});
+
+router.post('/comment', checkAuth, (req, res) => {
+  console.log('inside comment', req.body);
+  Groups.updateOne({
+    groupName: req.body.group,
+    'expenses._id': mongoose.Types.ObjectId(req.body.expenseID),
+  }, {
+    $push:
+  { 'expenses.$.notes': { noteby: req.body.noteBy, noteText: req.body.noteText } },
+  },
+  (err2, notes) => {
+    if (err2) {
+      console.log(err2);
+      res.status(500).end('Error Occured while updating not paid member balance');
+    }
+    console.log('post update comment', notes);
+    if (notes.nModified !== 0) {
+      Groups.findOne({ groupName: req.body.group })
+        .populate('members.userID', 'username')
+        .populate({ path: 'expenses.paidBy', select: 'username -_id' })
+        .populate({ path: 'expenses.notes.noteby', select: 'username -_id' })
+        .exec((error, commentgroups) => {
+          if (error) {
+            console.log(error);
+          }
+          console.log('commentgroups info groups', commentgroups);
+          const expenseresults = { info: commentgroups };
+          console.log('commentgroups info expenseresults', expenseresults);
+          console.log('commentgroups aggregate groups', JSON.stringify(expenseresults));
+          res.status(200).end(JSON.stringify(expenseresults));
+          res.end();
+        });
     }
   });
 });

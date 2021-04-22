@@ -9,30 +9,36 @@ const Users = require('../Models/UsersModel');
 
 router.post('/memberinfo', checkAuth, (req, res) => {
   console.log('Inside memberinfo post req', req.body);
-  Groups.find({ groupName: req.body.groupName },
-    {
-      groupName: 1,
-      numberOfMembers: 1,
-      members: {
-        $filter: {
-          input: '$members',
-          as: 'members',
-          cond: {
-            $and: [
-              { $eq: ['$$members.accepted', 1] },
-            ],
-          },
-        },
-      },
-      expenses: 1,
-    },
-    (error, user) => {
-      if (error) {
-        console.log(error);
+  Groups.findOne({ groupName: req.body.groupName })
+    .populate('members.userID', 'username')
+    .populate({ path: 'expenses.paidBy', select: 'username -_id' })
+    .populate({ path: 'expenses.notes.noteby', select: 'username -_id' })
+    .exec((err2, groups) => {
+      if (err2) {
+        console.log(err2);
       }
-      const result = { info: user[0] };
-      console.log('memberinfo returned value', JSON.stringify(result));
-      res.status(200).end(JSON.stringify(result));
+      console.log('member info groups', groups);
+      const expenseresults = { info: groups };
+      console.log('member info expenseresults', expenseresults);
+      console.log('memberinfo aggregate groups', JSON.stringify(expenseresults));
+      res.status(200).end(JSON.stringify(expenseresults));
+      res.end();
+    });
+});
+
+router.post('/expenseinfo', checkAuth, (req, res) => {
+  console.log('Inside expenseinfo post req', req.body);
+  Groups.findOne({ groupName: req.body.groupname })
+    .populate('members.userID', 'username')
+    .populate('expenses.paidBy', 'username')
+    .exec((err2, groups) => {
+      if (err2) {
+        console.log(err2);
+      }
+      const expenseresults = { info: groups };
+      console.log('aggregate groups', JSON.stringify(expenseresults));
+      res.status(200).end(JSON.stringify(expenseresults));
+      res.end();
     });
 });
 

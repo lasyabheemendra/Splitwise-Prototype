@@ -138,4 +138,15 @@
  .navbar-inner {
   background-color: #48be9d;
 }
+.comments {
+  max-width: 300px;
+}
+
+.right {
+  width: 245px;
+  padding-top: 4px;
+  padding-bottom: 5px;
+  vertical-align: top;
+}
+
 .dropdown .dropdown-menu .dropdown-item:active, .dropdown .dropdown-menu .dropdown-item:hover{background-color: pink !important;}

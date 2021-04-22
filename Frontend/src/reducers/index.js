@@ -5,6 +5,7 @@ import groupvalidation from './newGroup';
 import groupdetails from './groupAccept';
 import groupinformation from './groupInfo';
 import mygroups from './myGroups';
+import expenseformation from './expenseInfo';
 
 const rootReducer = combineReducers({
   validation,
@@ -13,6 +14,7 @@ const rootReducer = combineReducers({
   groupdetails,
   groupinformation,
   mygroups,
+  expenseformation,
 });
 
 export default rootReducer;

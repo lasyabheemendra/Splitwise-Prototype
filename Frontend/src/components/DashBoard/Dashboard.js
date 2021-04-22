@@ -75,7 +75,7 @@ class DashBoard extends PureComponent {
         } else {
           this.setState({ message: '' });
           tempfulldata = response.data;
-
+          console.log('tempfulldata', tempfulldata);
           tempuserOwes = response.data.filter((item) => item.status === 'owes' && item.userName === this.props.details.username);
           tempuserGetsback = response.data.filter((item) => item.status === 'gets back' && item.userName === this.props.details.username);
 
@@ -228,21 +228,26 @@ class DashBoard extends PureComponent {
   }
 
   settleUp = () => {
-    console.log('printOwes', this.state.printOwes);
-    console.log('printGetsback', this.state.printGetsback);
-    console.log('this.state.selectedUser[0]', this.state.selectedUser[0]);
-    const others = [];
     console.log('this.state.memberData', this.state.memberData);
-    const tempuserOwes = this.state.memberData
+    const tempotherUsers = this.state.memberData
       .filter((item) => item.userName === this.state.selectedUser[0]);
-    console.log('tempuserOwes', tempuserOwes);
+    console.log('tempotherUsers', tempotherUsers);
+    const temploggedUser = this.state.memberData
+      .filter((item) => item.userName === this.props.details.username);
+    console.log('temploggedUser', temploggedUser);
+    const result = temploggedUser.concat(tempotherUsers);
+    console.log('result', result);
+    console.log('tempotherUsers 2', tempotherUsers);
     const data = {
-      username: [this.props.details.username],
-      useremail: [this.props.details.useremail],
-      otherUser: tempuserOwes[0],
+      loggedUser: this.props.details.userID,
+      otherUser: tempotherUsers[0].userID,
+      userDetails: result,
+      groups: this.props.mygroups.acceptedGroups,
     };
     console.log('settle up data', data);
     // make a post request with the user data
+
+    axios.defaults.headers.common.authorization = localStorage.getItem('token');
     axios.post('http://localhost:3001/dashboard/settleup ', data)
       .then((response) => {
         console.log('settle up response', response.data);
