@@ -63,7 +63,6 @@ class DashBoard extends PureComponent {
     let tempprintgetsback = [];
     let tempgetsback = 0;
     let tempowes = 0;
-    console.log('dashboard directly 2');
     const datas = { groups: this.props.mygroups.acceptedGroups };
     console.log('getUserBalance datas 3', datas);
     axios.defaults.headers.common.authorization = localStorage.getItem('token');

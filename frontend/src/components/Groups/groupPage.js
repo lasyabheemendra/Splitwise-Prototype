@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unused-prop-types */
 /* eslint-disable import/no-unresolved */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
@@ -31,7 +32,7 @@ import clone from 'lodash.clone';
 import { Link } from 'react-router-dom';
 import NavHomeBar from '../DashBoard/NavHomeBar';
 import { getMemberInfo } from '../../actions/groupInfoAction';
-import { addExpenseComment } from '../../actions/commentAction';
+import { addExpenseComment, deleteExpenseComment } from '../../actions/commentAction';
 import SideBar from '../SideBar/SideBar';
 import GroupBar from './groupBar';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -65,6 +66,7 @@ class groupPage extends PureComponent {
       shownote: false,
       showid: '',
       open: false,
+      hide: false,
     };
   }
 
@@ -111,7 +113,9 @@ class groupPage extends PureComponent {
       groupBalance: [],
     });
     const tempGroupBalanceShow = [];
+    console.log('this.props.groupinfo.members', this.props.groupinfo.members);
     const tempGroupBalance = clone(this.props.groupinfo.members);
+    console.log('tempGroupBalance', tempGroupBalance);
     for (let i = 0; i < tempGroupBalance.length; i += 1) {
       if (tempGroupBalance[i].balance < 0) {
         tempGroupBalance[i].balance = `owes ${this.props.details.currency}${numeral(Math.abs(tempGroupBalance[i].balance)).format('0.00')}`;
@@ -146,8 +150,11 @@ class groupPage extends PureComponent {
    };
 
   showNotes = (id) => {
-    console.log('id----', id);
-    this.setState({ showid: id });
+    this.setState({ showid: id, hide: true });
+  }
+
+  hideNotes = (id) => {
+    this.setState({ showid: '', hide: false });
   }
 
   notetexthandler = (e) => {
@@ -165,8 +172,10 @@ class groupPage extends PureComponent {
     this.props.addExpenseComment(data);
   }
 
-  deleteNote = () => {
-    this.setState({ open: true });
+  deleteNote = (id, expid) => {
+    console.log('is this correct note id', id);
+    console.log('is this correct exp id', expid);
+    this.setState({ open: true, nodeid: id, expID: expid });
   }
 
   handleClose = () => {
@@ -174,7 +183,14 @@ class groupPage extends PureComponent {
   };
 
   handleAgree = () => {
-    console.log('I agree!');
+    console.log('I agree!', this.state.nodeid);
+    console.log('I agree again!', this.state.expID);
+    const data = {
+      group: this.props.match.params.Name,
+      expenseID: this.state.expID,
+      noteid: this.state.nodeid,
+    };
+    this.props.deleteExpenseComment(data);
     this.handleClose();
   };
 
@@ -208,38 +224,48 @@ class groupPage extends PureComponent {
             </p>
           </div>
           <div>
+
             <button
               type="button"
               className="btn btn-secondary btn-sm"
               onClick={() => this.showNotes((expense._id))}
             >
-              Note
+              Show Note
             </button>
+
           </div>
 
         </div>
         { this.state.showid === expense._id
          && (
-         <div>
-           <div>
+         <div className="comment">
+           <div className="header">
              <span style={{ color: 'grey' }}>NOTES AND COMMENTS</span>
-             <div>
+           </div>
+           <div>
+             <div className="comment">
                {expense.notes.map((note) => (
-                 <div className="row pb-1 border-bottom">
+                 <div className="row pb-1">
                    <div className="col">
                      <h6>
                        <i>
                          {note.noteby.username}
                        </i>
                      </h6>
-                   </div>
-                   <div className="col" style={{ paddingTop: '0.2rem' }}>
                      <p>
                        {note.noteText}
                      </p>
+                     <hr />
+
                    </div>
                    <div className="col" style={{ paddingTop: '0.2rem' }}>
-                     <a className="delete_comment" style={{ color: 'red' }} onClick={this.deleteNote}>X</a>
+                     <a
+                       className="delete_comment"
+                       style={{ color: 'red' }}
+                       onClick={() => this.deleteNote(note._id, expense._id)}
+                     >
+                       X
+                     </a>
                      <Dialog
                        open={this.state.open}
                        onClose={this.handleClose}
@@ -267,7 +293,7 @@ class groupPage extends PureComponent {
                  </div>
                ))}
              </div>
-             <div>
+             <div className="comment">
                <Form.Group>
                  <Form.Control type="text" placeholder="Add a comment" onChange={this.notetexthandler} />
                  <br />
@@ -374,6 +400,7 @@ groupPage.propTypes = {
   getMemberInfo: PropTypes.func.isRequired,
   groupinfo: PropTypes.object.isRequired,
   addExpenseComment: PropTypes.func.isRequired,
+  deleteExpenseComment: PropTypes.func.isRequired,
 
 };
 
@@ -382,4 +409,5 @@ const mapStateToProps = (state) => ({
   groupinfo: state.groupinformation,
 });
 
-export default connect(mapStateToProps, { getMemberInfo, addExpenseComment })(groupPage);
+export default connect(mapStateToProps,
+  { getMemberInfo, addExpenseComment, deleteExpenseComment })(groupPage);

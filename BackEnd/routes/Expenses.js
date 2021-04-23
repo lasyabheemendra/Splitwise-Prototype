@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-console */
 const express = require('express');
 const mongoose = require('mongoose');
@@ -5,6 +6,7 @@ const mongoose = require('mongoose');
 const router = express.Router();
 const { checkAuth } = require('../passport');
 const Groups = require('../Models/GroupsModel');
+const Activities = require('../Models/RecentActivities');
 
 router.post('/addexpense', checkAuth, (req, res) => {
   console.log('Inside addexpense post req', req.body);
@@ -100,20 +102,31 @@ router.post('/addexpense', checkAuth, (req, res) => {
                   console.log(err4);
                   res.status(500).end('Error Occured while updating gets back status');
                 }
-
-                Groups.findOne({ groupName: req.body.groupname })
-                  .populate('members.userID', 'username')
-                  .populate({ path: 'expenses.paidBy', select: 'username -_id' })
-                  .populate({ path: 'expenses.notes.noteby', select: 'username -_id' })
-                  .exec((err2, groups) => {
-                    if (err2) {
-                      console.log(err2);
-                    }
-                    const expenseresults = { info: groups };
-                    console.log('aggregate groups', JSON.stringify(expenseresults));
-                    res.status(200).end(JSON.stringify(expenseresults));
-                    res.end();
-                  });
+                // here comes activity
+                Activities.create({
+                  activityOn: new Date().toDateString(),
+                  activityBy: req.body.paidby,
+                  activityName: `Added "${req.body.description}" Expense in`,
+                  activityGroup: group[0]._id,
+                }, (err5) => {
+                  if (err5) {
+                    console.log(err5);
+                    res.status(500).end('Error Occured while updating gets back status');
+                  }
+                  Groups.findOne({ groupName: req.body.groupname })
+                    .populate('members.userID', 'username')
+                    .populate({ path: 'expenses.paidBy', select: 'username -_id' })
+                    .populate({ path: 'expenses.notes.noteby', select: 'username -_id' })
+                    .exec((err2, groups) => {
+                      if (err2) {
+                        console.log(err2);
+                      }
+                      const expenseresults = { info: groups };
+                      console.log('aggregate groups', JSON.stringify(expenseresults));
+                      res.status(200).end(JSON.stringify(expenseresults));
+                      res.end();
+                    });
+                });
               });
             });
           }
@@ -159,4 +172,38 @@ router.post('/comment', checkAuth, (req, res) => {
   });
 });
 
+router.post('/deletecomment', checkAuth, (req, res) => {
+  console.log('inside delete comment', req.body);
+  Groups.updateOne({
+    groupName: req.body.group,
+    'expenses._id': mongoose.Types.ObjectId(req.body.expenseID),
+  }, {
+    $pull:
+  { 'expenses.$.notes': { _id: mongoose.Types.ObjectId(req.body.noteid) } },
+  },
+  (err2, notes) => {
+    if (err2) {
+      console.log(err2);
+      res.status(500).end('Error Occured while deleting note comments');
+    }
+    console.log('post delete comment', notes);
+    if (notes.nModified !== 0) {
+      Groups.findOne({ groupName: req.body.group })
+        .populate('members.userID', 'username')
+        .populate({ path: 'expenses.paidBy', select: 'username -_id' })
+        .populate({ path: 'expenses.notes.noteby', select: 'username -_id' })
+        .exec((error, commentgroups) => {
+          if (error) {
+            console.log(error);
+          }
+          console.log('delete commentgroups info groups', commentgroups);
+          const expenseresults = { info: commentgroups };
+          console.log('delete commentgroups info expenseresults', expenseresults);
+          console.log('delete commentgroups aggregate groups', JSON.stringify(expenseresults));
+          res.status(200).end(JSON.stringify(expenseresults));
+          res.end();
+        });
+    }
+  });
+});
 module.exports = router;

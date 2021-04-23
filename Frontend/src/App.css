@@ -149,4 +149,31 @@
   vertical-align: top;
 }
 
+.comment {
+  border: 1px solid #ccc;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  padding: 6px 8px;
+  background: #fff;
+  margin-bottom: 8px;
+  word-wrap: break-word;
+}
+
+.comment .header {
+  font-weight: bold;
+}
+
+.label {
+  color: rgb(10, 10, 10);
+  padding: 8px;
+  font-weight:bold;
+}
+
+.success {background-color: #4CAF50;} /* Green */
+.info {background-color: #2196F3;} /* Blue */
+.warning {background-color: #ff9800;} /* Orange */
+.danger {background-color: #f44336;} /* Red */
+.other {background-color: #e7e7e7; color: black;} /* Gray */
+
 .dropdown .dropdown-menu .dropdown-item:active, .dropdown .dropdown-menu .dropdown-item:hover{background-color: pink !important;}

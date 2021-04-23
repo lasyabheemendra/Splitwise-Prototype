@@ -121,6 +121,7 @@ router.post('/getrelatedusers', checkAuth, (req, res) => {
           console.log(err);
           res.end();
         }
+        console.log('get related user', JSON.stringify(user));
         if (user.length !== 0) {
           const tempResult = [];
           for (let i = 0; i < user.length; i += 1) {
@@ -140,63 +141,80 @@ router.post('/getrelatedusers', checkAuth, (req, res) => {
     );
 });
 
-router.post('/settleup', checkAuth, (req, res) => {
+router.post('/settleup', checkAuth, async (req, res) => {
   console.log('settleup ', req.body);
   let x;
   let y;
-  for (let i = 0; i < req.body.groups.length; i += 1) {
-    x = req.body.userDetails.filter((item) => item.userID === req.body.loggedUser
-    && item.group_name === req.body.groups[i])[0].balance;
-    y = req.body.userDetails.filter((item) => item.userID === req.body.otherUser
-    && item.group_name === req.body.groups[i])[0].balance;
-    console.log('X value', x);
-    console.log('Y value', y);
-    if (x > 0) {
-      if (Math.abs(y) < x) {
-        x += y;
-        y = 0;
-      } else if (Math.abs(y) >= x) {
-        y += x;
-        x = 0;
-      }
-    } else if (x < 0) {
-      if (Math.abs(x) < y) {
-        y += x;
-        x = 0;
-      } else if (Math.abs(x) >= y) {
-        x += y;
-        y = 0;
-      }
-    }
-    console.log('POST calculation X value', x);
-    console.log('POST calculation Y value', y);
-    Groups.updateOne({
-      groupName: req.body.groups[i],
-    }, { $set: { 'members.$[elem].balance': x } }, {
-      arrayFilters: [{ 'elem.userID': req.body.loggedUser }],
+  await Groups.find({ 'members.userID': req.body.otherUser },
+    {
+      groupName: 1,
+      _id: 0,
     },
-    // eslint-disable-next-line no-loop-func
-    (err1, loggeduser) => {
-      if (err1) {
-        console.log(err1);
-        res.status(200).end('Failed to update logged user balance');
+    (error, groups) => {
+      if (error) {
+        console.log(error);
+        // res.status(401).end('User profile not updated');
       }
-      if (loggeduser.nModified !== 0) {
+      const grouplist = groups.map((a) => a.groupName);
+      console.log('/settleup groups', grouplist);
+      for (let i = 0; i < grouplist.length; i += 1) {
+        x = req.body.userDetails.filter((item) => item.userID === req.body.loggedUser
+        && item.group_name === grouplist[i])[0].balance;
+        y = req.body.userDetails.filter((item) => item.userID === req.body.otherUser
+        && item.group_name === grouplist[i])[0].balance;
+        console.log('X value', x);
+        console.log('Y value', y);
+        if (x > 0) {
+          if (Math.abs(y) < x) {
+            x += y;
+            y = 0;
+          } else if (Math.abs(y) >= x) {
+            y += x;
+            x = 0;
+          }
+        } else if (x < 0) {
+          if (Math.abs(x) < y) {
+            y += x;
+            x = 0;
+          } else if (Math.abs(x) >= y) {
+            x += y;
+            y = 0;
+          }
+        }
+        console.log('POST calculation X value', x);
+        console.log('POST calculation Y value', y);
+        console.log('req.body.groups[i]', grouplist[i]);
+        console.log('req.body.loggedUser', req.body.loggedUser);
         Groups.updateOne({
-          groupName: req.body.groups[i],
-        }, { $set: { 'members.$[elem].balance': y } }, {
-          arrayFilters: [{ 'elem.userID': req.body.otherUser }],
+          groupName: grouplist[i],
+        }, { $set: { 'members.$[elem].balance': x } }, {
+          arrayFilters: [{ 'elem.userID': req.body.loggedUser }],
         },
-        (err9) => {
-          if (err9) {
-            console.log(err9);
-            res.status(200).end('Failed to update other user balance');
+        // eslint-disable-next-line no-loop-func
+        (err1, loggeduser) => {
+          if (err1) {
+            console.log(err1);
+            res.status(200).end('Failed to update logged user balance');
+          }
+          if (loggeduser.nModified !== 0) {
+            Groups.updateOne({
+              groupName: grouplist[i],
+            }, { $set: { 'members.$[elem].balance': y } }, {
+              arrayFilters: [{ 'elem.userID': req.body.otherUser }],
+            },
+            (err9) => {
+              if (err9) {
+                console.log(err9);
+                res.status(200).end('Failed to update other user balance');
+              }
+            });
           }
         });
       }
     });
-  }
-  Groups.updateMany({
+
+  console.log('post for loop reach');
+  await Groups.updateMany({
     groupName: req.body.groupname,
   }, { $set: { 'members.$[elem].status': 'NA' } }, {
     arrayFilters: [{ 'elem.balance': 0 }],
@@ -206,8 +224,8 @@ router.post('/settleup', checkAuth, (req, res) => {
       console.log(err4);
       res.status(500).end('Error Occured while updating  status');
     }
+    res.status(200).end('Settled balance between users');
   });
-  res.status(200).end('Settled balance between users');
 });
 
 module.exports = router;

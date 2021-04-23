@@ -1,12 +1,11 @@
 /* eslint-disable no-underscore-dangle */
-/* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 const express = require('express');
 
 const router = express.Router();
 const { checkAuth } = require('../passport');
 const Groups = require('../Models/GroupsModel');
-const Users = require('../Models/UsersModel');
+const Activities = require('../Models/RecentActivities');
 
 router.post('/createnew', checkAuth, (req, res) => {
   console.log('Inside user update Request');
@@ -52,21 +51,41 @@ router.post('/createnew', checkAuth, (req, res) => {
         } else {
           console.log('post creation', data);
           console.log('req.body.user[0].userID', req.body.user[0].userID);
-          Groups.find({ members: { $elemMatch: { accepted: 1, userID: req.body.user[0].userID } } },
-            { groupName: 1, _id: 0 },
-            (err1, groupnames) => {
-              if (err1) {
-                res.status(500).end('Error Occured');
-              }
-              if (groupnames) {
-                const grouplist = [];
-                grouplist.push(groupnames.map((name) => name.groupName));
-                const returngroups = { groups: grouplist[0] };
-                res.status(200).end(JSON.stringify(returngroups));
-              } else {
-                res.status(401).end('Invalid Credentials');
-              }
-            });
+          Activities.create({
+            activityOn: new Date().toDateString(),
+            activityBy: req.body.user[0].userID,
+            activityName: 'Created Group',
+            activityGroup: data._id,
+          },
+          (err2, activity) => {
+            if (err2) {
+              console.log(err2);
+              res.status(500).end('Error Occured');
+            }
+            if (activity) {
+              Groups.find({
+                members:
+                 { $elemMatch: { accepted: 1, userID: req.body.user[0].userID } },
+              },
+              { groupName: 1, _id: 0 },
+              (err1, groupnames) => {
+                if (err1) {
+                  res.status(500).end('Error Occured');
+                }
+                if (groupnames) {
+                  const grouplist = [];
+                  grouplist.push(groupnames.map((name) => name.groupName));
+                  console.log('activity', activity);
+                  const returngroups = { groups: grouplist[0] };
+                  res.status(200).end(JSON.stringify(returngroups));
+                } else {
+                  res.status(401).end('New group information is not found');
+                }
+              });
+            } else {
+              res.status(401).end('Recent Activity failed');
+            }
+          });
         }
       });
     }

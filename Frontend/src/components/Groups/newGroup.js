@@ -78,7 +78,7 @@ class group extends PureComponent {
 
   member1Changehandler = (selectedValue) => {
     if (selectedValue.length !== 0) {
-      console.log('selectedValue', selectedValue);
+      console.log('selectedValue member1Changehandler', selectedValue);
       const newList = this.state.userDetails
         .filter((item) => item.useremail !== selectedValue[0].useremail);
       this.setState({
@@ -153,12 +153,13 @@ class group extends PureComponent {
   }
 
   member4Changehandler = (selectedValue) => {
+    console.log('inside member4Changehandler', selectedValue);
     if (selectedValue.length !== 0) {
       const newList = this.state.userDetails
         .filter((item) => item.useremail !== selectedValue[0].useremail);
       this.setState({
         memberName4: selectedValue[0].username,
-        memberEmail4: selectedValue[0].usermail,
+        memberEmail4: selectedValue[0].useremail,
         memberID4: selectedValue[0]._id,
         userDetails: newList,
       });
@@ -305,7 +306,12 @@ class group extends PureComponent {
                 <h3>Group members</h3>
                 <Form.Group controlId="formCategory1">
 
-                  <span style={{ color: 'maroon' }}>{this.state.defaultmember}</span>
+                  <span style={{ color: 'maroon' }}>
+                    {this.props.details.username}
+                    {'  ('}
+                    {this.props.details.useremail}
+                    {'  )'}
+                  </span>
                   <div className="container">
                     <div className="form-row">
                       <div className="col-5">
