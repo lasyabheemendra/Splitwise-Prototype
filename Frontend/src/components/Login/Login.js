@@ -43,6 +43,7 @@ class Login extends Component {
       localStorage.setItem('token', this.props.token);
       const decoded = jwt_decode(this.props.token.split(' ')[1]);
       localStorage.setItem('userID', decoded._id);
+      localStorage.setItem('username', decoded.username);
       redirectVar = <Redirect to="/dashboard" />;
     }
     return (

@@ -65,9 +65,6 @@ router.post('/addexpense', checkAuth, (req, res) => {
                 }
               });
             } else if (group[0].members[i].userID !== req.body.paidby) {
-              // console.log('NOT paidbyemail--', group[0].members[i].userID);
-              // console.log('NOT paidbyemail balance', group[0].members[i].balance);
-              // console.log('balance expected', group[0].members[i].balance - share);
               Groups.updateOne({
                 groupName: req.body.groupname,
               }, { $set: { 'members.$[elem].balance': group[0].members[i].balance - share } }, {
@@ -122,7 +119,6 @@ router.post('/addexpense', checkAuth, (req, res) => {
                         console.log(err2);
                       }
                       const expenseresults = { info: groups };
-                      console.log('aggregate groups', JSON.stringify(expenseresults));
                       res.status(200).end(JSON.stringify(expenseresults));
                       res.end();
                     });
@@ -163,8 +159,6 @@ router.post('/comment', checkAuth, (req, res) => {
           }
           console.log('commentgroups info groups', commentgroups);
           const expenseresults = { info: commentgroups };
-          console.log('commentgroups info expenseresults', expenseresults);
-          console.log('commentgroups aggregate groups', JSON.stringify(expenseresults));
           res.status(200).end(JSON.stringify(expenseresults));
           res.end();
         });

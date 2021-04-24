@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import axios from 'axios';
 import {
   NEW_GROUP_SUCCESS, NEW_GROUP_ERROR, NEW_GROUP_RESET, USER_GROUP_SUCCESS,

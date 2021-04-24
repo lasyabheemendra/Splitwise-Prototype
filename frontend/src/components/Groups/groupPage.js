@@ -33,6 +33,7 @@ import { Link } from 'react-router-dom';
 import NavHomeBar from '../DashBoard/NavHomeBar';
 import { getMemberInfo } from '../../actions/groupInfoAction';
 import { addExpenseComment, deleteExpenseComment } from '../../actions/commentAction';
+import { clearleaveProp } from '../../actions/acceptGroup';
 import SideBar from '../SideBar/SideBar';
 import GroupBar from './groupBar';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -134,7 +135,7 @@ class groupPage extends PureComponent {
     }
   }
 
-   leaveGroup = () => {
+   leaveGroups = () => {
      const data = { groupName: this.props.match.params.Name };
      axios.post('http://localhost:3001/leavegroup', data)
        .then((response) => {
@@ -165,7 +166,7 @@ class groupPage extends PureComponent {
     const data = {
       group: this.props.match.params.Name,
       expenseID: id,
-      noteBy: this.props.details.userID,
+      noteBy: localStorage.getItem('userID'),
       noteText: this.state.notetext,
     };
     console.log('Add note data', data);
@@ -401,13 +402,17 @@ groupPage.propTypes = {
   groupinfo: PropTypes.object.isRequired,
   addExpenseComment: PropTypes.func.isRequired,
   deleteExpenseComment: PropTypes.func.isRequired,
+  leavegroup: PropTypes.string.isRequired,
 
 };
 
 const mapStateToProps = (state) => ({
   details: state.information,
   groupinfo: state.groupinformation,
+  leavegroup: state.mygroups,
 });
 
 export default connect(mapStateToProps,
-  { getMemberInfo, addExpenseComment, deleteExpenseComment })(groupPage);
+  {
+    getMemberInfo, addExpenseComment, deleteExpenseComment, clearleaveProp,
+  })(groupPage);

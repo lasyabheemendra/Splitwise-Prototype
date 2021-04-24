@@ -1,11 +1,9 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 const express = require('express');
 
 const router = express.Router();
 const { checkAuth } = require('../passport');
 const Groups = require('../Models/GroupsModel');
-const Users = require('../Models/UsersModel');
 
 router.post('/memberinfo', checkAuth, (req, res) => {
   console.log('Inside memberinfo post req', req.body);
@@ -21,22 +19,6 @@ router.post('/memberinfo', checkAuth, (req, res) => {
       const expenseresults = { info: groups };
       console.log('member info expenseresults', expenseresults);
       console.log('memberinfo aggregate groups', JSON.stringify(expenseresults));
-      res.status(200).end(JSON.stringify(expenseresults));
-      res.end();
-    });
-});
-
-router.post('/expenseinfo', checkAuth, (req, res) => {
-  console.log('Inside expenseinfo post req', req.body);
-  Groups.findOne({ groupName: req.body.groupname })
-    .populate('members.userID', 'username')
-    .populate('expenses.paidBy', 'username')
-    .exec((err2, groups) => {
-      if (err2) {
-        console.log(err2);
-      }
-      const expenseresults = { info: groups };
-      console.log('aggregate groups', JSON.stringify(expenseresults));
       res.status(200).end(JSON.stringify(expenseresults));
       res.end();
     });

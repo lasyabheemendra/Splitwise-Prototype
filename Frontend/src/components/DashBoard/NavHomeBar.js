@@ -12,6 +12,7 @@ import '../../App.css';
 // create the Navbar Component
 class NavHomeBar extends PureComponent {
   render() {
+    const name = localStorage.getItem('username');
     let navLogin = null;
     if (localStorage.getItem('token')) {
       navLogin = (
@@ -43,7 +44,7 @@ class NavHomeBar extends PureComponent {
             <Navbar.Text>
               Signed in as:
             </Navbar.Text>
-            <NavDropdown title={this.props.details} id="collasible-nav-dropdown">
+            <NavDropdown title={name} id="collasible-nav-dropdown">
               <NavDropdown.Item href="/userprofile">Profile</NavDropdown.Item>
               <NavDropdown.Item>{navLogin}</NavDropdown.Item>
             </NavDropdown>
@@ -58,7 +59,6 @@ class NavHomeBar extends PureComponent {
 
 NavHomeBar.propTypes = {
   logout: PropTypes.func.isRequired,
-  details: PropTypes.string.isRequired,
 
 };
 

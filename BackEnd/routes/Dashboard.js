@@ -35,11 +35,8 @@ router.post('/getdata', checkAuth, (req, res) => {
           }
           console.log('groupnames', JSON.stringify(groupnames));
           if (groupnames) {
-            console.log('groupnames groupnames groupnames', groupnames);
             const grouplist = groupnames.map((a) => a.groupName);
-            console.log('groupnames result', grouplist);
             const result = { info: user, groups: grouplist };
-            console.log('new API result', JSON.stringify(result));
             res.status(200).end(JSON.stringify(result));
           } else {
             console.log('groupnames result is emplty', groupnames);
@@ -156,12 +153,15 @@ router.post('/settleup', checkAuth, async (req, res) => {
         // res.status(401).end('User profile not updated');
       }
       const grouplist = groups.map((a) => a.groupName);
+      console.log('/settleup groups logged in', req.body.groups);
       console.log('/settleup groups', grouplist);
-      for (let i = 0; i < grouplist.length; i += 1) {
+      const intersection = req.body.groups.filter((item) => grouplist.includes(item));
+      console.log('/intersection groups', intersection);
+      for (let i = 0; i < intersection.length; i += 1) {
         x = req.body.userDetails.filter((item) => item.userID === req.body.loggedUser
-        && item.group_name === grouplist[i])[0].balance;
+        && item.group_name === intersection[i])[0].balance;
         y = req.body.userDetails.filter((item) => item.userID === req.body.otherUser
-        && item.group_name === grouplist[i])[0].balance;
+        && item.group_name === intersection[i])[0].balance;
         console.log('X value', x);
         console.log('Y value', y);
         if (x > 0) {
@@ -183,11 +183,11 @@ router.post('/settleup', checkAuth, async (req, res) => {
         }
         console.log('POST calculation X value', x);
         console.log('POST calculation Y value', y);
-        console.log('req.body.groups[i]', grouplist[i]);
+        console.log('req.body.groups[i]', intersection[i]);
         console.log('req.body.loggedUser', req.body.loggedUser);
         Groups.updateOne({
-          groupName: grouplist[i],
-        }, { $set: { 'members.$[elem].balance': x } }, {
+          groupName: intersection[i],
+        }, { $set: { 'members.$[elem].balance': x.toFixed(2) } }, {
           arrayFilters: [{ 'elem.userID': req.body.loggedUser }],
         },
         // eslint-disable-next-line no-loop-func
@@ -198,8 +198,8 @@ router.post('/settleup', checkAuth, async (req, res) => {
           }
           if (loggeduser.nModified !== 0) {
             Groups.updateOne({
-              groupName: grouplist[i],
-            }, { $set: { 'members.$[elem].balance': y } }, {
+              groupName: intersection[i],
+            }, { $set: { 'members.$[elem].balance': y.toFixed(2) } }, {
               arrayFilters: [{ 'elem.userID': req.body.otherUser }],
             },
             (err9) => {
@@ -207,25 +207,23 @@ router.post('/settleup', checkAuth, async (req, res) => {
                 console.log(err9);
                 res.status(200).end('Failed to update other user balance');
               }
+              Groups.updateMany({
+                groupName: intersection[i],
+              }, { $set: { 'members.$[elem].status': 'NA' } }, {
+                arrayFilters: [{ 'elem.balance': 0 }],
+              },
+              (err4, status) => {
+                if (err4) {
+                  console.log(err4);
+                  res.status(500).end('Error Occured while updating  status');
+                }
+                res.status(200).end('Settled balance between users');
+              });
             });
           }
         });
       }
     });
-
-  console.log('post for loop reach');
-  await Groups.updateMany({
-    groupName: req.body.groupname,
-  }, { $set: { 'members.$[elem].status': 'NA' } }, {
-    arrayFilters: [{ 'elem.balance': 0 }],
-  },
-  (err4) => {
-    if (err4) {
-      console.log(err4);
-      res.status(500).end('Error Occured while updating  status');
-    }
-    res.status(200).end('Settled balance between users');
-  });
 });
 
 module.exports = router;

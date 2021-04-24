@@ -194,6 +194,9 @@ class DashBoard extends PureComponent {
             you_owe: tempowes,
             totalBalance: tempgetsback - tempowes,
           });
+          console.log('memberData', this.state.memberData);
+          console.log('printOwes', this.state.printOwes);
+          console.log('printGetsback', this.state.printGetsback);
         }
       }).catch(() => {
         console.log('user did not leave group');
@@ -201,21 +204,20 @@ class DashBoard extends PureComponent {
   }
 
   showModal = () => {
-    let users = [];
     this.setState({ isOpen: true });
     const data = {
       groups: this.props.mygroups.acceptedGroups,
       useremail: this.props.details.useremail,
     };
-    axios.post('http://localhost:3001/dashboard/getrelatedusers', data)
-      .then((response) => {
-        users = response.data;
-        console.log('users', users);
-
-        this.setState({ isOpen: true, userDetails: users });
-      }).catch(() => {
-        console.log('No Related users found');
-      });
+    const relatesUsers = [];
+    for (let i = 0; i < this.state.printOwes.length; i += 1) {
+      relatesUsers.push(this.state.printOwes[i].userName);
+    }
+    for (let i = 0; i < this.state.printGetsback.length; i += 1) {
+      relatesUsers.push(this.state.printGetsback[i].userName);
+    }
+    console.log('relatesUsers', relatesUsers);
+    this.setState({ isOpen: true, userDetails: relatesUsers });
   }
 
   hideModal = () => {
