@@ -5,26 +5,25 @@ const Groups = require('../Models/GroupsModel');
 const Activities = require('../Models/RecentActivities');
 
 async function handle_request(msg, callback) {
-  console.log('Inside ne group kafka request');
-  console.log('Req Body : ', msg.body);
-  console.log('Req Body : ', msg.body.user);
+  console.log('Inside ne group kafka request:',msg);
+  console.log('Req Body : ', msg.user);
   const memberdata = [{
-    userID: msg.body.user[0].userID,
+    userID: msg.user[0].userID,
     accepted: 1,
     balance: 0,
     status: 'NA',
   }];
   console.log('memberdata', memberdata);
-  for (let i = 1; i < msg.body.user.length; i += 1) {
+  for (let i = 1; i < msg.user.length; i += 1) {
     memberdata.push({
-      userID: msg.body.user[i].userID,
+      userID: msg.user[i].userID,
       accepted: 0,
       balance: 0,
       status: 'NA',
     });
   }
   Groups.findOne({
-    groupName: msg.body.groupname,
+    groupName: msg.groupname,
   }, (error, result) => {
     if (error) {
       callback(null, { status: 500, data: "Error Occured" });
@@ -33,7 +32,7 @@ async function handle_request(msg, callback) {
       callback(null, { status: 400, data: "Please Enter unique Group Name" });
     } else {
       Groups.create({
-        groupName: msg.body.groupname,
+        groupName: msg.groupname,
         numberOfMembers: 1,
         members: memberdata,
       }, (err, data) => {
@@ -41,10 +40,10 @@ async function handle_request(msg, callback) {
           callback(null, { status: 500, data: "Failed to Create Group" });
         } else {
           console.log('post creation', data);
-          console.log('req.body.user[0].userID', msg.body.user[0].userID);
+          console.log('req.body.user[0].userID', msg.user[0].userID);
           Activities.create({
             activityOn: new Date().toDateString(),
-            activityBy: msg.body.user[0].userID,
+            activityBy: msg.user[0].userID,
             activityName: 'Created Group',
             activityGroup: data._id,
           },
@@ -56,7 +55,7 @@ async function handle_request(msg, callback) {
             if (activity) {
               Groups.find({
                 members:
-                 { $elemMatch: { accepted: 1, userID: msg.body.user[0].userID } },
+                 { $elemMatch: { accepted: 1, userID: msg.user[0].userID } },
               },
               { groupName: 1, _id: 0 },
               (err1, groupnames) => {
