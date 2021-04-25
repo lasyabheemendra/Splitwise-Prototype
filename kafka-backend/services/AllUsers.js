@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
-const kafka = require('../kafka/client');
 
 const Users = require('../Models/UsersModel');
 
