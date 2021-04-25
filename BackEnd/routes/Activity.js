@@ -8,7 +8,7 @@ const { checkAuth } = require('../passport');
 const Activities = require('../Models/RecentActivities');
 
 router.get('/getrecentactivities', checkAuth, (req, res) => {
-  console.log('Inside getrecentactivities Request');
+  console.log('Inside getrecentactivities Request to');
   kafka.make_request('activity_topic', req.body, (err, results) => {
     if (err) {
       console.log('make request backed folder errored', err);
