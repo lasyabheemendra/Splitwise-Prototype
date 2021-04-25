@@ -13,7 +13,7 @@ router.post('/createnew', checkAuth, (req, res) => {
   console.log('Req Body : ', req.body.user);
   kafka.make_request('creategroup_topic', req.body, (err, results) => {
     if (err) {
-      console.log('make request backed folder errored',err);
+      console.log('make request backed folder errored', err);
       res.writeHead(err.status, {
         'Content-Type': 'text/plain',
       });
