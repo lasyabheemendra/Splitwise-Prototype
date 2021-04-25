@@ -19,7 +19,7 @@ const connectMongoDB = async () => {
     };
   
     try {
-      await mongoose.connect(mongoDBURI, options);
+      await mongoose.connect(mongoDB, options);
       console.log("MongoDB connected");
     } catch (err) {
       console.log("Could not connect to MongoDB", err);

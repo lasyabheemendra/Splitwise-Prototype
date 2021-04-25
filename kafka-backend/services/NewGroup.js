@@ -4,7 +4,7 @@
 const Groups = require('../Models/GroupsModel');
 const Activities = require('../Models/RecentActivities');
 
-async function getOrderByCustomerId(msg, callback) {
+async function handle_request(msg, callback) {
   console.log('Inside ne group kafka request');
   console.log('Req Body : ', msg.body);
   console.log('Req Body : ', msg.body.user);
