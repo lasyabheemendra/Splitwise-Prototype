@@ -7,6 +7,7 @@ const Users = require('./Models/UsersModel');
 const Groups = require('./Models/GroupsModel');
 const newgroups = require('./services/NewGroup');
 const expenses = require('./services/Expenses');
+const managegroups = require('./services/InvitedGroups');
 
 //connect to mongoDB
 
@@ -61,3 +62,4 @@ function handleTopicRequest(topic_name,fname){
 //second argument is a function that will handle this topic request
 handleTopicRequest("creategroup_topic",newgroups)
 handleTopicRequest("addexpense_topic",expenses)
+handleTopicRequest("managegroup_topic",managegroups)
