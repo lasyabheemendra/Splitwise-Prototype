@@ -19,7 +19,7 @@ router.post('/login', (req, res) => {
   Users.findOne({ useremail: req.body.useremail, password: md5(req.body.password) },
     (error, user) => {
       if (error) {
-        res.status(500).end('Error Occured');
+        res.status(500).end('Ivalid credentials');
       }
       if (user) {
         const payload = {

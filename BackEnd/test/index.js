@@ -1,23 +1,99 @@
-/* eslint-disable no-unused-vars */
-const agent = require('supertest');
+/* eslint-disable import/order */
+const chai = require('chai');
+chai.use(require('chai-http'));
+
+const { expect } = require('chai');
 const md5 = require('md5');
-const should = require('should');
-const { get } = require('../index');
+const app = require('../index');
+const agent = require('chai').request.agent(app);
 
-const server = agent('http://localhost:3000');
+// UNIT test begin
 
-// UNIT test 1 begin
+describe('splitwiselab2', () => {
+  describe('Login Test', () => {
+    it('Customer Incorrect Password', (done) => {
+      agent
+        .post('/user/login')
+        .send({ email_id: 'kamala@sjsu.com', password: 'password' })
+        .then((res) => {
+          expect(res).to.have.status(401);
+          expect(res.text).to.equal('Invalid Credentials');
+          done();
+        })
+        .catch((error) => {
+          done(error);
+        });
+    });
+  });
 
-describe('POST Login Test', () => {
-  it('Customer Incorrect Login credentials', (done) => {
-    server
-      .post('/user/login')
-      .expect(200)
-      .send({ useremail: 'kamala@sjsu.com', password: md5('lasya') })
-      .end((err, res) => {
-        res.status.should.equal(200);
-        res.text.should.equal('Invalid Credentials');
-        done();
-      });
+  describe('New user signup Test', () => {
+    it('new user signup test', (done) => {
+      agent
+        .post('/user/signup')
+        .send({
+          useremail: 'kamala@sjsu.com',
+          username: 'Test User',
+          password: md5('password'),
+        })
+        .then((res) => {
+          expect(res).to.have.status(400);
+          expect(res.text).to.equal('User already exists');
+          done();
+        })
+        .catch((error) => {
+          done(error);
+        });
+    });
+  });
+
+  describe('Get Recentactivities Test', () => {
+    it('Get Recentactivities test', (done) => {
+      agent
+        .get('/activities/getrecentactivities')
+        .then((res) => {
+          expect(res).to.have.status(200);
+          expect(JSON.parse(res.text).length).to.be.at.least(1);
+          done();
+        })
+        .catch((error) => {
+          done(error);
+        });
+    });
+  });
+
+  describe('Get all users Test', () => {
+    it('Get all users test', (done) => {
+      agent
+        .post('/getusers/all')
+        .send({
+          email: 'kamala@sjsu.com',
+        })
+        .then((res) => {
+          expect(res).to.have.status(200);
+          expect(JSON.parse(res.text).length).to.be.at.least(1);
+          done();
+        })
+        .catch((error) => {
+          done(error);
+        });
+    });
+  });
+
+  describe('Get group info Test', () => {
+    it('Get group info test', (done) => {
+      agent
+        .post('/groups/memberinfo')
+        .send({
+          groupName: 'test',
+        })
+        .then((res) => {
+          expect(res).to.have.status(200);
+          expect(JSON.parse(res.text).length).to.be.at.least(1);
+          done();
+        })
+        .catch((error) => {
+          done(error);
+        });
+    });
   });
 });
