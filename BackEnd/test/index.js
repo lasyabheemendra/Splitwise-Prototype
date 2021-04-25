@@ -1,26 +1,22 @@
 /* eslint-disable no-unused-vars */
 const agent = require('supertest');
+const md5 = require('md5');
 const should = require('should');
 const { get } = require('../index');
 
-// eslint-disable-next-line no-unused-vars
-
 const server = agent('http://localhost:3000');
 
-// UNIT test begin
+// UNIT test 1 begin
 
-describe('POST unit API calls', () => {
-  // #1 should return home page
-
-  it('get group balance of sent group name', (done) => {
-    // calling home page api
+describe('POST Login Test', () => {
+  it('Customer Incorrect Login credentials', (done) => {
     server
-      .post('/groupbalance')
-      .expect(200) // THis is HTTP response
-      .send({ groupName: 'party' })
+      .post('/user/login')
+      .expect(200)
+      .send({ useremail: 'kamala@sjsu.com', password: md5('lasya') })
       .end((err, res) => {
-        // HTTP status should be 200
         res.status.should.equal(200);
+        res.text.should.equal('Invalid Credentials');
         done();
       });
   });
