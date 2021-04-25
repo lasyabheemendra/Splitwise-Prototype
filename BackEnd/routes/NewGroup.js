@@ -6,8 +6,6 @@ const kafka = require('../kafka/client');
 
 const router = express.Router();
 const { checkAuth } = require('../passport');
-const Groups = require('../Models/GroupsModel');
-const Activities = require('../Models/RecentActivities');
 
 router.post('/createnew', checkAuth, (req, res) => {
   console.log('Inside user update Request');
