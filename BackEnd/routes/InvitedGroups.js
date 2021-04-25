@@ -2,6 +2,7 @@
 /* eslint-disable no-console */
 const express = require('express');
 const mongoose = require('mongoose');
+const kafka = require('../kafka/client');
 
 const router = express.Router();
 const { checkAuth } = require('../passport');

@@ -20,7 +20,7 @@ app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
 // use express session to maintain session data
 app.use(session({
-  secret: 'cmpe273_kafka_passport_mongo',
+  secret: '273_secret_splitwisekafka_mongo',
   resave: false,
   saveUninitialized: false,
   duration: 60 * 60 * 1000, // Overall duration of Session : 30 minutes : 1800 seconds
