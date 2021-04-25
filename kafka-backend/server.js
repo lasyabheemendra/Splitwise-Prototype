@@ -10,6 +10,8 @@ const expenses = require('./services/Expenses');
 const managegroups = require('./services/InvitedGroups');
 const memberinfo = require('./services/GroupInfo');
 const dashboard = require('./services/Dashboard');
+const allusers = require('./services/AllUsers');
+const activities = require('./services/Activity');
 
 //connect to mongoDB
 
@@ -67,3 +69,5 @@ handleTopicRequest("addexpense_topic",expenses);
 handleTopicRequest("managegroup_topic",managegroups);
 handleTopicRequest("memberinfo_topic",memberinfo);
 handleTopicRequest("dashboard_topic",dashboard);
+handleTopicRequest("allusers_topic",allusers);
+handleTopicRequest("activity_topic",activities);

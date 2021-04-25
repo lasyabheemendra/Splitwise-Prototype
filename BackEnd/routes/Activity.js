@@ -9,20 +9,21 @@ const Activities = require('../Models/RecentActivities');
 
 router.get('/getrecentactivities', checkAuth, (req, res) => {
   console.log('Inside getrecentactivities Request');
-  Activities.find()
-    .populate({ path: 'activityBy', select: 'username -_id' })
-    .populate({ path: 'activityGroup', select: 'groupName -_id' })
-    .exec((err2, groups) => {
-      if (err2) {
-        console.log(err2);
-      }
-      console.log('Activities', groups);
-      const expenseresults = { info: groups };
-      console.log('Activities info expenseresults', expenseresults);
-      console.log('Activities JSON groups', JSON.stringify(expenseresults));
-      res.status(200).end(JSON.stringify(expenseresults));
-      res.end();
-    });
+  kafka.make_request('activity_topic', req.body, (err, results) => {
+    if (err) {
+      console.log('make request backed folder errored', err);
+      res.writeHead(err.status, {
+        'Content-Type': 'text/plain',
+      });
+      res.end(err.data);
+    } else {
+      console.log('make request backend folder success');
+      res.writeHead(results.status, {
+        'Content-Type': 'text/plain',
+      });
+      res.end(results.data);
+    }
+  });
 });
 
 module.exports = router;
