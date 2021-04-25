@@ -1,1 +1,1 @@
-# 273-Splitwise-Lab2
+# 273-kafka-lab2
