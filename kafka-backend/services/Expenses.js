@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-console */
+const mongoose = require('mongoose');
 const Groups = require('../Models/GroupsModel');
 const Activities = require('../Models/RecentActivities');
 
@@ -25,14 +26,14 @@ let handle_request = async (msg, callback) => {
 async function handle_addexpense_request(msg, callback) {
   console.log('Inside addexpense post req kafka', msg);
   const expenseData = [{
-    name: msg.description,
-    amount: Number(msg.amount),
+    name: msg.body.description,
+    amount: Number(msg.body.amount),
     paidOn: new Date().toDateString(),
-    paidBy: msg.paidby,
+    paidBy: msg.body.paidby,
   }];
   console.log('expenseData', expenseData);
   Groups.updateOne({
-    groupName: msg.groupname,
+    groupName: msg.body.groupname,
   }, { $push: { expenses: { $each: expenseData } } },
   (error, result) => {
     if (error) {
@@ -40,9 +41,9 @@ async function handle_addexpense_request(msg, callback) {
       callback(null, { status: 500, data: "Not Able to add expense" });
     }
     if (result.nModified !== 0) {
-      const share = Number(msg.amount / msg.NOM);
+      const share = Number(msg.body.amount / msg.body.NOM);
       console.log('share', share);
-      Groups.find({ groupName: msg.groupname },
+      Groups.find({ groupName: msg.body.groupname },
         {
           members: {
             $filter: {
@@ -63,14 +64,14 @@ async function handle_addexpense_request(msg, callback) {
           // console.log('get members', JSON.stringify(group[0].members));
           for (let i = 0; i < group[0].members.length; i += 1) {
             console.log('group[0].members[i].userID', group[0].members[i].userID.toString());
-            console.log('msg.paidby', msg.paidby);
-            if (group[0].members[i].userID.toString() === msg.paidby) {
+            console.log('msg.paidby', msg.body.paidby);
+            if (group[0].members[i].userID.toString() === msg.body.paidby) {
               console.log('paidbyemail', group[0].members[i].userID);
               console.log('paidbyemail balance', group[0].members[i].balance);
               Groups.updateOne({
-                groupName: msg.groupname,
-              }, { $set: { 'members.$[elem].balance': group[0].members[i].balance + (msg.amount - share) } }, {
-                arrayFilters: [{ 'elem.userID': msg.paidby }],
+                groupName: msg.body.groupname,
+              }, { $set: { 'members.$[elem].balance': group[0].members[i].balance + (msg.body.amount - share) } }, {
+                arrayFilters: [{ 'elem.userID': msg.body.paidby }],
               },
               (err1) => {
                 if (err1) {
@@ -78,9 +79,9 @@ async function handle_addexpense_request(msg, callback) {
                   callback(null, { status: 500, data: "Error Occured while updating paid member balance" });
                 }
               });
-            } else if (group[0].members[i].userID !== msg.paidby) {
+            } else if (group[0].members[i].userID !== msg.body.paidby) {
               Groups.updateOne({
-                groupName: msg.groupname,
+                groupName: msg.body.groupname,
               }, { $set: { 'members.$[elem].balance': group[0].members[i].balance - share } }, {
                 arrayFilters: [{ 'elem.userID': group[0].members[i].userID }],
               },
@@ -94,7 +95,7 @@ async function handle_addexpense_request(msg, callback) {
           }
           if (group[0].members.length > 0) {
             Groups.updateMany({
-              groupName: msg.groupname,
+              groupName: msg.body.groupname,
             }, { $set: { 'members.$[elem].status': 'owes' } }, {
               arrayFilters: [{ 'elem.balance': { $lt: 0 } }],
             },
@@ -104,7 +105,7 @@ async function handle_addexpense_request(msg, callback) {
                 callback(null, { status: 500, data: "Error Occured while updating owes status" });
               }
               Groups.updateMany({
-                groupName: msg.groupname,
+                groupName: msg.body.groupname,
               }, { $set: { 'members.$[elem].status': 'gets back' } }, {
                 arrayFilters: [{ 'elem.balance': { $gt: 0 } }],
               },
@@ -116,15 +117,15 @@ async function handle_addexpense_request(msg, callback) {
                 // here comes activity
                 Activities.create({
                   activityOn: new Date().toDateString(),
-                  activityBy: msg.paidby,
-                  activityName: `Added "${msg.description}" Expense in`,
+                  activityBy: msg.body.paidby,
+                  activityName: `Added "${msg.body.description}" Expense in`,
                   activityGroup: group[0]._id,
                 }, (err5) => {
                   if (err5) {
                     console.log(err5);
                     callback(null, { status: 500, data: "Error Occured while updating gets back status" });
                   }
-                  Groups.findOne({ groupName: msg.groupname })
+                  Groups.findOne({ groupName: msg.body.groupname })
                     .populate('members.userID', 'username')
                     .populate({ path: 'expenses.paidBy', select: 'username -_id' })
                     .populate({ path: 'expenses.notes.noteby', select: 'username -_id' })
@@ -146,14 +147,14 @@ async function handle_addexpense_request(msg, callback) {
   });
 }
 
-async function handle_addexpense_request(msg, callback) {
+async function handle_addcomment_request(msg, callback) {
   console.log('inside comment',msg );
   Groups.updateOne({
-    groupName: msg.group,
-    'expenses._id': mongoose.Types.ObjectId(msg.expenseID),
+    groupName: msg.body.group,
+    'expenses._id': mongoose.Types.ObjectId(msg.body.expenseID),
   }, {
     $push:
-  { 'expenses.$.notes': { noteby: msg.noteBy, noteText: msg.noteText } },
+  { 'expenses.$.notes': { noteby: msg.body.noteBy, noteText: msg.body.noteText } },
   },
   (err2, notes) => {
     if (err2) {
@@ -162,7 +163,7 @@ async function handle_addexpense_request(msg, callback) {
     }
     console.log('post update comment', notes);
     if (notes.nModified !== 0) {
-      Groups.findOne({ groupName: msg.group })
+      Groups.findOne({ groupName: msg.body.group })
         .populate('members.userID', 'username')
         .populate({ path: 'expenses.paidBy', select: 'username -_id' })
         .populate({ path: 'expenses.notes.noteby', select: 'username -_id' })
@@ -181,11 +182,11 @@ async function handle_addexpense_request(msg, callback) {
 async function handle_deletecomment_request(msg, callback) {
   console.log('inside delete comment', msg);
   Groups.updateOne({
-    groupName: msg.group,
-    'expenses._id': mongoose.Types.ObjectId(msg.expenseID),
+    groupName: msg.body.group,
+    'expenses._id': mongoose.Types.ObjectId(msg.body.expenseID),
   }, {
     $pull:
-  { 'expenses.$.notes': { _id: mongoose.Types.ObjectId(msg.noteid) } },
+  { 'expenses.$.notes': { _id: mongoose.Types.ObjectId(msg.body.noteid) } },
   },
   (err2, notes) => {
     if (err2) {
@@ -194,7 +195,7 @@ async function handle_deletecomment_request(msg, callback) {
     }
     console.log('post delete comment', notes);
     if (notes.nModified !== 0) {
-      Groups.findOne({ groupName: msg.group })
+      Groups.findOne({ groupName: msg.body.group })
         .populate('members.userID', 'username')
         .populate({ path: 'expenses.paidBy', select: 'username -_id' })
         .populate({ path: 'expenses.notes.noteby', select: 'username -_id' })
