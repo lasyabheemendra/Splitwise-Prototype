@@ -1,25 +1,24 @@
-#273-Spliwise-Lab2 with Redux,MongoDB,Mongoose and Kafka.
+# 273-Spliwise-Lab2 with Redux,MongoDB,Mongoose and Kafka.
 
-#####THIS APPLICATION IS DEVELOPED BY Lasya Bheemendra Nalini AS PART OF CMPE-273 Course for MSSE SJSU.
-Application URL: http://13.57.215.120:3000/
+##### THIS APPLICATION IS DEVELOPED BY Lasya Bheemendra Nalini AS PART OF CMPE-273 Course for MSSE SJSU.
+##### Application URL: http://13.57.215.120:3000/
 
-Installation Guide:
+##### Installation Guide:
 Make sure to follow steps as mentioned under the installation steps after the required dependencies are resolved as described under the Dependencies section below.
 
-
-Dependencies:
+##### Dependencies:
 This piece of software comprises of multiple modules which have varying set of requirements and dependencies
 
-Level 1 Dependencies:
+##### Level 1 Dependencies:
 Java
 NodeJs
 
-Level 2 Dependencies
+##### Level 2 Dependencies
 •	Apache kafka
 •	Mongo DB
 •	Amazon EC2: Make sure to Open port 3000, 3001, 2181, 9092.
 
-Installation steps:
+##### Installation steps:
 1.	Kafka installation steps: Follow the steps as mentioned in https://kafka.apache.org/quickstart.
 Make sure that kafka zookeeper and broker are running in the Amazon EC2 instance.
 
