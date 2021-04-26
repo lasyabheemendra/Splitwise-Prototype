@@ -24,7 +24,7 @@ function NavigationBar({ showLogin, showSignup }) {
               type="button"
               id="login"
               className="btn btn-success mr-2"
-              Style="width: 100px;"
+              style={{ width: '100px' }}
             >
               Login
             </button>
@@ -37,7 +37,7 @@ function NavigationBar({ showLogin, showSignup }) {
               type="button"
               id="signup"
               className="btn btn-success"
-              Style="width: 100px;"
+              style={{ width: '100px' }}
             >
               Sign Up
             </button>

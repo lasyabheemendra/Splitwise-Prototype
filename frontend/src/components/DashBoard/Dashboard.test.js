@@ -6,29 +6,23 @@ import { render, fireEvent } from '@testing-library/react';
 import { screen } from '@testing-library/dom';
 import configureStore from 'redux-mock-store';
 import '@testing-library/jest-dom/extend-expect';
-import SignUp from './SignUp';
+import Dashboard from './Dashboard';
+import store from '../../store/index';
 
 const mockStore = configureStore([]);
 
 describe('User Profile Page Test', () => {
-  let store;
-
-  beforeEach(() => {
-    store = mockStore({
-      username: 'lasya',
-      useremail: 'lasya@sjsu.com',
-    });
-  });
-
   test('renders User Profile page', async () => {
-    const stringInput = screen.getByPlaceholderText('Username');
+    const stringInput = screen.getByText('total balance:');
     expect(stringInput).toBeInTheDocument();
-    const emailInput = screen.getByPlaceholderText('useremail@example.com');
-    expect(emailInput).toBeInTheDocument();
-    const passwordInput = screen.getByPlaceholderText('Password');
-    expect(passwordInput).toBeInTheDocument();
-    const button = screen.getByText('Sign Me Up!');
-    expect(button).toBeInTheDocument();
+    const stringInput1 = screen.getByText('you owe:');
+    expect(stringInput1).toBeInTheDocument();
+    const stringInput2 = screen.getByText('you are owed:');
+    expect(stringInput2).toBeInTheDocument();
+    const stringInput3 = screen.getByText('You do not owe anything');
+    expect(stringInput3).toBeInTheDocument();
+    const stringInput4 = screen.getByText('You are not owed anything');
+    expect(stringInput4).toBeInTheDocument();
   });
 
   it('should render with given state from Redux store', () => {

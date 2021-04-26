@@ -1,6 +1,5 @@
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable react/no-unused-prop-types */
 /* eslint-disable react/no-access-state-in-setstate */
+/* eslint-disable no-underscore-dangle */
 import React, { PureComponent } from 'react';
 import {
   Container, Row, Col, Form,
@@ -74,88 +73,86 @@ class mygroups extends PureComponent {
    editSearchTerm = (e) => {
      this.setState({ searchTerm: e.target.value });
    }
-   // eslint-disable-next-line max-len
-   // dynamicSearch = () => this.state.allGroups.filter((name) => name.toLowerCase().includes(this.state.searchTerm.toLowerCase()));
 
-    onAccept = async () => {
-    // By calling the belowe method will get the selected values programatically
-      const data = {};
-      data.userID = this.props.details.userID;
-      data.groups = this.multiselectRef.current.getSelectedItems();
+   onAccept = async () => {
+     // By calling the belowe method will get the selected values programatically
+     const data = {};
+     data.userID = this.props.details.userID;
+     data.groups = this.multiselectRef.current.getSelectedItems();
 
-      await this.props.acceptGroup(data);
-      await this.multiselectRef.current.resetSelectedValues();
-      await this.setState({
-        invitedGroups: this.state.invitedGroups.filter(
-          (el) => !data.groups.includes(el),
-        ),
-      });
-    };
+     await this.props.acceptGroup(data);
+     await this.multiselectRef.current.resetSelectedValues();
+     await this.setState({
+       invitedGroups: this.state.invitedGroups.filter(
+         (el) => !data.groups.includes(el),
+       ),
+     });
+   };
 
-    dynamicSearch() {
-      const filteredGroup = this.state.allGroups.filter((name) => name.toLowerCase()
-        .includes(this.state.searchTerm.toLowerCase()));
-      return this.getAllgroups(filteredGroup);
-    }
+   dynamicSearch() {
+     const filteredGroup = this.state.allGroups.filter((name) => name.toLowerCase()
+       .includes(this.state.searchTerm.toLowerCase()));
+     return this.getAllgroups(filteredGroup);
+   }
 
-    render() {
-      let redirectVar = null;
-      if (!localStorage.getItem('token')) {
-        redirectVar = <Redirect to="/" />;
-      }
-      return (
-        <div>
-          {redirectVar}
-          <NavHomeBar />
-          <h1>My Groups</h1>
-          <br />
-          <Container>
-            <Row>
-              {' '}
-              <h5>List of groups you are invited to</h5>
-            </Row>
-            <Row>
-              <Col xs={{ order: 'first' }} md={8}>
-                <div>
-                  <Form.Group />
+   render() {
+     let redirectVar = null;
+     if (!localStorage.getItem('token')) {
+       redirectVar = <Redirect to="/" />;
+     }
+     return (
+       <div>
+         {redirectVar}
+         <NavHomeBar />
+         <h1>My Groups</h1>
+         <br />
+         <Container>
+           <Row>
+             {' '}
+             <h5>List of groups you are invited to</h5>
+           </Row>
+           <Row>
+             <Col xs={{ order: 'first' }} md={8}>
+               <div>
+                 <Form.Group />
 
-                  <Multiselect
-                    options={this.state.invitedGroups}
-                    isObject={false}
-                    ref={this.multiselectRef}
-                    showCheckbox
-                    placeholder="Select group names from the invited groups"
-                    closeOnSelect={false}
-                  />
-                </div>
-              </Col>
-              <Col xs={{ order: 'last' }} md={4}>
-                {' '}
-                <div className="vertical-center">
-                  <button
-                    type="button"
-                    onClick={this.onAccept}
-                    className="btn btn-success"
-                  >
-                    Accept Invites
-                  </button>
-                </div>
-              </Col>
-            </Row>
-          </Container>
-          <br />
-          <Container>
-            <Row>
-              <h5>Your Groups: </h5>
-            </Row>
-            <Row>
-              <Col xs={{ order: 'first' }} md={8}>
-                <div>
-                  <input type="text" value={this.state.searchTerm} onChange={this.editSearchTerm} placeholder="Search for a name!" />
-                </div>
-                <br />
-                <div>
-                  {this.state.allGroups.length < 1
+                 <Multiselect
+                   options={this.state.invitedGroups}
+                   isObject={false}
+                   ref={this.multiselectRef}
+                   showCheckbox
+                   placeholder="Select group names from the invited groups"
+                   closeOnSelect={false}
+                 />
+               </div>
+             </Col>
+             <Col xs={{ order: 'last' }} md={4}>
+               {' '}
+               <div className="vertical-center">
+                 <button
+                   type="button"
+                   onClick={this.onAccept}
+                   className="btn btn-success"
+                 >
+                   Accept Invites
+                 </button>
+               </div>
+             </Col>
+           </Row>
+         </Container>
+         <br />
+         <Container>
+           <Row>
+             <h5>Your Groups: </h5>
+           </Row>
+           <Row>
+             <Col xs={{ order: 'first' }} md={8}>
+               <div>
+                 <input type="text" value={this.state.searchTerm} onChange={this.editSearchTerm} placeholder="Search for a name!" />
+               </div>
+               <br />
+               <div>
+                 {this.state.allGroups.length < 1
                   && (
                   <p className="alert alert-success">
                     {' '}
@@ -163,20 +160,19 @@ class mygroups extends PureComponent {
                     {' '}
                   </p>
                   )}
-                  {this.dynamicSearch()}
-                </div>
-              </Col>
+                 {this.dynamicSearch()}
+               </div>
+             </Col>
 
-            </Row>
-          </Container>
-        </div>
-      );
-    }
+           </Row>
+         </Container>
+       </div>
+     );
+   }
 }
 mygroups.propTypes = {
   details: PropTypes.string.isRequired,
   acceptGroup: PropTypes.func.isRequired,
-  acceptederror: PropTypes.bool.isRequired,
   myacceptedgroups: PropTypes.string.isRequired,
 
 };

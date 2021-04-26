@@ -1,16 +1,12 @@
-/* eslint-disable react/no-unused-prop-types */
-/* eslint-disable import/no-unresolved */
+/* eslint-disable react/no-unused-state */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-/* eslint-disable no-sequences */
-/* eslint-disable no-unused-vars */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable react/jsx-no-undef */
 /* eslint-disable react/forbid-prop-types */
 /* eslint-disable no-console */
-/* eslint-disable react/no-unused-state */
 /* eslint-disable react/no-access-state-in-setstate */
 /* eslint-disable react/prop-types */
 import React, { PureComponent } from 'react';
@@ -29,7 +25,6 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import clone from 'lodash.clone';
-import { Link } from 'react-router-dom';
 import NavHomeBar from '../DashBoard/NavHomeBar';
 import { getMemberInfo } from '../../actions/groupInfoAction';
 import { addExpenseComment, deleteExpenseComment } from '../../actions/commentAction';
@@ -44,27 +39,10 @@ class groupPage extends PureComponent {
     super(props);
     this.state = {
       allExpenses: '',
-      columns: [{
-        dataField: 'paidOn',
-        text: 'Paid ON',
-      }, {
-        dataField: 'name',
-        text: 'Expense Name',
-      },
-      {
-        dataField: 'paidBy',
-        text: 'Paid BY',
-      }, {
-        dataField: 'amount',
-        text: 'Amount Paid',
-      }],
       groupBalance: [],
       acceptedMembers: false,
-      userCurrency: '',
-      redirect: '',
       showButton: true,
       message: '',
-      shownote: false,
       showid: '',
       open: false,
       hide: false,
@@ -72,11 +50,6 @@ class groupPage extends PureComponent {
   }
 
   componentDidMount() {
-    this.setState({
-      username: this.props.details.username,
-      userCurrency: this.props.details.currency,
-
-    });
     this.getmemberInfo();
     this.getacceptedMembers();
     this.getExpenses();
@@ -154,7 +127,7 @@ class groupPage extends PureComponent {
     this.setState({ showid: id, hide: true });
   }
 
-  hideNotes = (id) => {
+  hideNotes = () => {
     this.setState({ showid: '', hide: false });
   }
 
@@ -402,7 +375,6 @@ groupPage.propTypes = {
   groupinfo: PropTypes.object.isRequired,
   addExpenseComment: PropTypes.func.isRequired,
   deleteExpenseComment: PropTypes.func.isRequired,
-  leavegroup: PropTypes.string.isRequired,
 
 };
 

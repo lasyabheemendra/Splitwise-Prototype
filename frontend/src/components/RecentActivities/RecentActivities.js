@@ -135,9 +135,9 @@ render() {
                 <Form>
                   <Form.Group controlId="formCategory1">
                     <Form.Label className="label other">Sort By:</Form.Label>
-                    <select className="form-select form-select-sm" aria-label=".form-select-sm example" onChange={this.sortFunction}>
-                      <option value="desc">most recent first</option>
-                      <option value="asc">most recent last</option>
+                    <select data-testid="select" className="form-select form-select-sm" aria-label=".form-select-sm example" onChange={this.sortFunction}>
+                      <option data-testid="select-option" value="desc">most recent first</option>
+                      <option data-testid="select-option" value="asc">most recent last</option>
                     </select>
                   </Form.Group>
                 </Form>

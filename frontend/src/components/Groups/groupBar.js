@@ -1,15 +1,10 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-console */
-/* eslint-disable no-undef */
-/* eslint-disable react/no-unused-state */
-/* eslint-disable no-unused-vars */
 import React, { PureComponent } from 'react';
-import { useParams } from 'react-router-dom';
 
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Navbar, Button, Modal } from 'react-bootstrap';
-import axios from 'axios';
 import { addExpense } from '../../actions/expenseAction';
 import { getMemberInfo } from '../../actions/groupInfoAction';
 import { leaveGroup } from '../../actions/acceptGroup';
@@ -23,9 +18,7 @@ class GroupBar extends PureComponent {
       amount: '',
       message: '',
       leavemessage: '',
-      redirect: '',
       addexpense: false,
-      leave: false,
       allowedit: true,
     };
   }
@@ -86,7 +79,6 @@ class GroupBar extends PureComponent {
   };
 
   leaveGroup = () => {
-    const data = { groupName: this.props.groupinfo.groupName };
     if (this.props.groupinfo.members
       .filter((member) => member.userID._id === this.props.details.userID)[0].balance === 0) {
       const leaveData = {

@@ -1,8 +1,5 @@
 /* eslint-disable no-console */
 /* eslint-disable no-underscore-dangle */
-/* eslint-disable linebreak-style */
-/* eslint-disable react/forbid-prop-types */
-/* eslint-disable react/no-unused-state */
 /* eslint-disable react/no-access-state-in-setstate */
 import React, { PureComponent } from 'react';
 import { Redirect } from 'react-router';
@@ -25,7 +22,6 @@ class group extends PureComponent {
     this.state = {
       groupname: '',
       groupImage: DefaultGroupPic,
-      defaultmember: null,
       allUseremail: [],
       userDetails: [],
       memberName1: '',
@@ -36,7 +32,6 @@ class group extends PureComponent {
       memberEmail3: '',
       memberName4: '',
       memberEmail4: '',
-      redirect: null,
       error: {
         groupnameError: '', memberEmail1Err: '', memberEmail4Err: '',
       },
@@ -287,7 +282,7 @@ class group extends PureComponent {
                 <h3>Start a new Group</h3>
                 <Form.Group controlId="formCategory1">
                   <Form.Label>My Group shall be called...</Form.Label>
-                  <Form.Control type="text" placeholder="Group Name" onChange={this.groupnameChangehandler} value={this.state.groupname} />
+                  <Form.Control type="text" placeholder="Group_Name" onChange={this.groupnameChangehandler} value={this.state.groupname} />
                   {this.state.error.groupnameError && (
                   <p className="alert alert-success">
                     {' '}
@@ -422,7 +417,7 @@ class group extends PureComponent {
 }
 
 group.propTypes = {
-  details: PropTypes.object.isRequired,
+  details: PropTypes.string.isRequired,
   groupCreate: PropTypes.func.isRequired,
   cleargroupProp: PropTypes.func.isRequired,
   error: PropTypes.string.isRequired,

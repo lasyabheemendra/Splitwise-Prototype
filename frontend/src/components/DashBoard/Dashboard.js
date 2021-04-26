@@ -1,6 +1,4 @@
 /* eslint-disable no-console */
-/* eslint-disable react/no-unused-state */
-/* eslint-disable no-unused-vars */
 import React, { PureComponent } from 'react';
 import {
   Container, Row, Col, Button, Navbar, Modal, Form,
@@ -205,10 +203,6 @@ class DashBoard extends PureComponent {
 
   showModal = () => {
     this.setState({ isOpen: true });
-    const data = {
-      groups: this.props.mygroups.acceptedGroups,
-      useremail: this.props.details.useremail,
-    };
     const relatesUsers = [];
     for (let i = 0; i < this.state.printOwes.length; i += 1) {
       relatesUsers.push(this.state.printOwes[i].userName);

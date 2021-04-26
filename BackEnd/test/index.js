@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable import/order */
 const chai = require('chai');
 chai.use(require('chai-http'));
@@ -5,7 +6,6 @@ chai.use(require('chai-http'));
 const app = require('../index');
 const md5 = require('md5');
 const { expect } = require('chai');
-// const should = chai.should();
 
 const agent = require('chai').request.agent(app);
 
@@ -38,6 +38,27 @@ describe('splitwiselab2', () => {
           password: md5('password'),
         })
         .then((res) => {
+          console.log('new user signup test', res);
+          expect(res).to.have.status(200);
+          expect((res.text).length).to.be.at.least(1);
+          done();
+        })
+        .catch((error) => {
+          done(error);
+        });
+    });
+  });
+
+  describe('New user unique signup Test', () => {
+    it('new user unique signup test', (done) => {
+      agent
+        .post('/user/signup')
+        .send({
+          useremail: 'kamala@sjsu.com',
+          username: 'Test User',
+          password: md5('password'),
+        })
+        .then((res) => {
           expect(res).to.have.status(400);
           expect(res.text).to.equal('User already exists');
           done();
@@ -48,15 +69,13 @@ describe('splitwiselab2', () => {
     });
   });
 
-  describe('Get Recentactivities Test', () => {
-    it('Get Recentactivities test', (done) => {
+  describe('Get Recentactivities activity Test', () => {
+    it('Get Recentactivitiesactivity  test', (done) => {
       agent
         .get('/activities/getrecentactivities')
         .then((res) => {
-          expect(res).to.have.status(401);
+          expect(res).to.have.status(200);
           expect((res.text).length).to.be.at.least(0);
-
-          expect(JSON.parse(res.text).length).to.be.at.least(0);
           done();
         })
         .catch((error) => {
@@ -70,10 +89,10 @@ describe('splitwiselab2', () => {
       agent
         .post('/getusers/all')
         .send({
-          email: 'kamala@sjsu.com',
+          email: 'Kamala@sjsu.com',
         })
         .then((res) => {
-          expect(res).to.have.status(401);
+          expect(res).to.have.status(200);
           expect((res.text).length).to.be.at.least(1);
           done();
         })
@@ -88,7 +107,7 @@ describe('splitwiselab2', () => {
       agent
         .post('/groups/memberinfo')
         .send({
-          groupName: 'pgne bill',
+          groupName: 'Test Event',
         })
         .then((res) => {
           expect(res).to.have.status(401);

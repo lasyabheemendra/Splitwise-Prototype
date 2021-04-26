@@ -7,37 +7,12 @@ import { screen } from '@testing-library/dom';
 import configureStore from 'redux-mock-store';
 import '@testing-library/jest-dom/extend-expect';
 import UserProfile from './UserProfile';
+import store from '../../store/index';
 
 const mockStore = configureStore([]);
 
 describe('User Profile Page Test', () => {
-  let store;
-  let component = null;
-
-  beforeEach(() => {
-    store = mockStore({
-      loggedIn: true,
-      userID: '1',
-      username: 'lasya',
-      useremail: 'lasya@sjsu.com',
-      phonenumber: '908-909-0987',
-      currency: '$',
-      timezone: '-08.00',
-      language: 'English',
-      selectedfile: '',
-      description: '',
-      profileImage: '',
-    });
-  });
-
-  component = renderer.create(
-    <Provider store={store}>
-      <UserProfile />
-    </Provider>,
-  );
-
   test('renders User Profile page', async () => {
-    const { container, debug } = component;
     const stringInput = screen.getByPlaceholderText('Enter Your Name');
     expect(stringInput).toBeInTheDocument();
     const emailInput = screen.getByPlaceholderText('Enter email');
@@ -51,7 +26,6 @@ describe('User Profile Page Test', () => {
   });
 
   it('should render with given state from Redux store', () => {
-    expect(component.toJSON()).toMatchSnapshot();
   });
 
   it('should dispatch an action on button click', () => {
