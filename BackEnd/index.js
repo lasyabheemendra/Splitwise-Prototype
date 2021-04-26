@@ -48,7 +48,7 @@ const Groups = require('./Models/GroupsModel');
 const options = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  poolSize: 500,
+  poolSize: 900,
   bufferMaxEntries: 0,
 };
 

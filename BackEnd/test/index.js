@@ -2,9 +2,11 @@
 const chai = require('chai');
 chai.use(require('chai-http'));
 
-const { expect } = require('chai');
-const md5 = require('md5');
 const app = require('../index');
+const md5 = require('md5');
+const { expect } = require('chai');
+// const should = chai.should();
+
 const agent = require('chai').request.agent(app);
 
 // UNIT test begin
@@ -53,6 +55,8 @@ describe('splitwiselab2', () => {
         .then((res) => {
           expect(res).to.have.status(401);
           expect((res.text).length).to.be.at.least(0);
+
+          expect(JSON.parse(res.text).length).to.be.at.least(0);
           done();
         })
         .catch((error) => {
@@ -84,7 +88,7 @@ describe('splitwiselab2', () => {
       agent
         .post('/groups/memberinfo')
         .send({
-          groupName: 'test',
+          groupName: 'pgne bill',
         })
         .then((res) => {
           expect(res).to.have.status(401);
