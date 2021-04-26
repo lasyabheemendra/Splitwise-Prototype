@@ -1,6 +1,6 @@
-273-Spliwise-Lab2 with Redux,MongoDB,Mongoose and Kafka.
+#273-Spliwise-Lab2 with Redux,MongoDB,Mongoose and Kafka.
 
-THIS APPLICATION IS DEVELOPED BY Lasya Bheemendra Nalini AS PART OF CMPE-273 Course for MSSE SJSU.
+#####THIS APPLICATION IS DEVELOPED BY Lasya Bheemendra Nalini AS PART OF CMPE-273 Course for MSSE SJSU.
 Application URL: http://13.57.215.120:3000/
 
 Installation Guide:
